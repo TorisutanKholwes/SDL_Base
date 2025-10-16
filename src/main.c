@@ -7,9 +7,11 @@
 #include "logger.h"
 #include "utils.h"
 
+#if 1
 int main() {
     log_message(LOG_LEVEL_INFO, "Starting up app %s", APP_NAME);
     log_message(LOG_LEVEL_DEBUG, "Debug mode is enabled");
+
     int exitStatus = init_sdl();
 
     if (exitStatus == EXIT_FAILURE) {
@@ -61,3 +63,10 @@ int main() {
     log_message(LOG_LEVEL_INFO, "App has been closed.");
     return EXIT_SUCCESS;
 }
+#endif
+
+#if 0
+int main() {
+}
+#endif
+
