@@ -4,6 +4,24 @@
  */
 #include "utils.h"
 
+#include "logger.h"
+
+Position* Position_new(const int x, const int y) {
+    Position* pos = calloc(1, sizeof(Position));
+    if (!pos) {
+        error("Failed to allocate memory for Position");
+        return NULL;
+    }
+    pos->x = x;
+    pos->y = y;
+    return pos;
+}
+
+void Position_destroy(Position* pos) {
+    if (!pos) return;
+    safe_free((void**)&pos);
+}
+
 void safe_free(void** ptr) {
     if (ptr && *ptr) {
         free(*ptr);
