@@ -28,6 +28,14 @@ Input* Input_create() {
         safe_free((void**)&input);
         return NULL;
     }
+    input->keyEventHandlers = Map_create();
+    if (!input->keyEventHandlers) {
+        error("Failed to create keyEventHandlers map");
+        List_destroy(input->keysDown);
+        Map_destroy(input->eventHandlers);
+        safe_free((void**)&input);
+        return NULL;
+    }
     input->mousePos = NULL;
     input->lastPressed = SDL_SCANCODE_UNKNOWN;
     return input;
@@ -60,9 +68,13 @@ void Input_update(Input* input) {
     SDL_Scancode code;
     while (SDL_PollEvent(&evt)) {
         if (input->eventHandlers && Map_containsKey(input->eventHandlers, (void*)evt.type)) {
-            void (*handler)(SDL_Event*) = Map_get(input->eventHandlers, (void*)evt.type);
-            if (handler) {
-                handler(&evt);
+            List* handlers = Map_get(input->eventHandlers, (void*)evt.type);
+            ListIterator* it = List_iterator(handlers);
+            while (ListIterator_hasNext(it)) {
+                void (*handler)(Input*, SDL_Event*) = ListIterator_next(it);
+                if (handler) {
+                    handler(input, &evt);
+                }
             }
         }
         switch (evt.type) {
@@ -70,6 +82,16 @@ void Input_update(Input* input) {
                 input->quit = true;
                 break;
             case SDL_EVENT_KEY_DOWN:
+                if (input->keyEventHandlers && Map_containsKey(input->keyEventHandlers, (void*)evt.key.key)) {
+                    List* handlers = Map_get(input->keyEventHandlers, (void*)evt.type);
+                    ListIterator* it = List_iterator(handlers);
+                    while (ListIterator_hasNext(it)) {
+                        void (*handler)(Input*, SDL_Event*) = ListIterator_next(it);
+                        if (handler) {
+                            handler(input, &evt);
+                        }
+                    }
+                }
                 code = evt.key.key;
                 input->lastPressed = code;
                 List_push(input->keysDown, (void*)code);
@@ -124,4 +146,48 @@ bool Input_mouseInRect(Input* input, SDL_Rect rect) {
         mouse->x < rect.x + rect.w &&
         mouse->y >= rect.y &&
         mouse->y < rect.y + rect.h;
+}
+
+void Input_addKeyEventHandler(Input* input, SDL_Scancode key, void (*handler)(Input* input, SDL_Event* event)) {
+    if (!input || !handler) return;
+    if (!Map_containsKey(input->keyEventHandlers, (void*)key)) {
+        List* handlers = List_create();
+        List_push(handlers, (void*)handler);
+        Map_put(input->keyEventHandlers, (void*)key, handlers);
+    } else {
+        List* handlers = Map_get(input->keyEventHandlers, (void*)key);
+        List_push(handlers, (void*)handler);
+    }
+}
+
+void Input_removeKeyEventHandler(Input* input, SDL_Scancode key) {
+    if (!input) return;
+    Map_remove(input->keyEventHandlers, (void*)key);
+}
+
+void Input_clearKeyEventHandlers(Input* input) {
+    if (!input) return;
+    Map_clear(input->keyEventHandlers);
+}
+
+void Input_addEventHandler(Input* input, Uint32 eventType, void (*handler)(Input* input, SDL_Event* event)) {
+    if (!input || !handler) return;
+    if (!Map_containsKey(input->eventHandlers, (void*)eventType)) {
+        List* handlers = List_create();
+        List_push(handlers, (void*)handler);
+        Map_put(input->eventHandlers, (void*)eventType, handlers);
+    } else {
+        List* handlers = Map_get(input->eventHandlers, (void*)eventType);
+        List_push(handlers, (void*)handler);
+    }
+}
+
+void Input_removeEventHandler(Input* input, Uint32 eventType) {
+    if (!input) return;
+    Map_remove(input->eventHandlers, (void*)eventType);
+}
+
+void Input_clearEventHandlers(Input* input) {
+    if (!input) return;
+    Map_clear(input->eventHandlers);
 }
