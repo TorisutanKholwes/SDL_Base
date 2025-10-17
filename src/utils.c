@@ -29,12 +29,103 @@ void safe_free(void** ptr) {
     }
 }
 
-void quit_sdl(const App *app) {
-    MIX_Quit();
-    TTF_Quit();
-    if (app->window)
-        SDL_DestroyWindow(app->window);
-    if (app->renderer)
-        SDL_DestroyRenderer(app->renderer);
-    SDL_Quit();
+int init() {
+    Uint32 sdlFlags = SDL_INIT_VIDEO | SDL_INIT_AUDIO;
+
+    if (!SDL_Init(sdlFlags)) {
+        error("Unable to initialize SDL: %s", SDL_GetError());
+        return EXIT_FAILURE;
+    }
+
+    if (!TTF_Init()) {
+        error("Unable to initialize SDL_ttf: %s", SDL_GetError());
+        return EXIT_FAILURE;
+    }
+
+    if (!MIX_Init()) {
+        error("Unable to initialize SDL_mixer: %s", SDL_GetError());
+        return EXIT_FAILURE;
+    }
+
+    return EXIT_SUCCESS;
+}
+
+SDL_FRect createRect(const float x, const float y, const float w, const float h) {
+    SDL_FRect rect = { 0 };
+    rect.w = w;
+    rect.h = h;
+    rect.x = x - (w / 2);
+    rect.y = y - (h / 2);
+
+    return rect;
+}
+
+Color* Color_rgb(const int r, const int g, const int b) {
+    return Color_rgba(r, g, b, 255);
+}
+
+Color* Color_rgba(const int r, const int g, const int b, const int a) {
+    Color* color = (Color*)calloc(1, sizeof(Color));
+    if (!color) {
+        error("Failed to allocate memory for Color");
+        return NULL;
+    }
+    color->r = r;
+    color->g = g;
+    color->b = b;
+    color->a = a;
+    return color;
+}
+
+Color* Color_hsv(float h, float s, float v) {
+    float dR, dG, dB;
+    int r, g, b;
+
+    h = fmodf(h, 360.0f);
+    float c = v * s;
+    float x = c * (1.f - fabsf(fmodf(h / 60.f, 2.f) - 1.f));
+    float m = v - c;
+
+    if (h < 60) {
+        dR = c; dG = x; dB = 0;
+    } else if (h < 120) {
+        dR = c; dG = x, dB = 0;
+    } else if (h < 180) {
+        dR = 0; dG = c; dB = x;
+    } else if (h < 240) {
+        dR = 0; dG = x; dB = c;
+    } else if (h < 300) {
+        dR = x; dG = 0; dB = c;
+    } else {
+        dR = c; dG = 0; dB = x;
+    }
+
+    r = (int) roundf((dR + m) * 255.f);
+    g = (int) roundf((dG + m) * 255.f);
+    b = (int) roundf((dB + m) * 255.f);
+    return Color_rgb(r, g, b);
+}
+
+void Color_destroy(Color* color) {
+    if (!color) return;
+    safe_free((void**)&color);
+}
+
+SDL_Color Color_toSDLColor(Color* color) {
+    return (SDL_Color){ color->r, color->g, color->b, color->a };
+}
+
+char* Strdup(const char* str) {
+    if (!str) return NULL;
+    size_t len = strlen(str);
+    char* copy = (char*)malloc(len + 1);
+    if (!copy) {
+        error("Failed to allocate memory for string duplication");
+        return NULL;
+    }
+    for (size_t i = 0; i <= len; i++) {
+        copy[i] = str[i];
+    }
+    copy[len] = '\0';
+    return copy;
 }
