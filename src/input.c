@@ -6,7 +6,7 @@
 
 #include "logger.h"
 
-Input* create_input() {
+Input* Input_create() {
     Input* input = calloc(1, sizeof(Input));
     if (!input) {
         error("Failed to allocate memory for Input");
@@ -30,7 +30,7 @@ Input* create_input() {
     return input;
 }
 
-void destroy_input(Input* input) {
+void Input_destroy(Input* input) {
     if (!input) return;
     List_destroy(input->keysDown);
     Map_destroy(input->eventHandlers);
@@ -38,8 +38,8 @@ void destroy_input(Input* input) {
     safe_free((void**)&input);
 }
 
-void update_input(Input* input) {
-    List_clear(input->keysDown);
+void Input_update(Input* input) {
+    /*List_clear(input->keysDown);
     Map_clear(input->eventHandlers);
     input->lastPressed = SDL_SCANCODE_UNKNOWN;
     input->mouse_left = false;
@@ -51,7 +51,7 @@ void update_input(Input* input) {
     input->quit = false;
     if (input->mousePos)
         Position_destroy(input->mousePos);
-    input->mousePos = NULL;
+    input->mousePos = NULL;*/
 
     SDL_Event evt;
     SDL_Scancode code;
@@ -70,14 +70,14 @@ void update_input(Input* input) {
                 code = evt.key.key;
                 input->lastPressed = code;
                 List_push(input->keysDown, (void*)code);
-                if (code == SDL_SCANCODE_LSHIFT || code == SDL_SCANCODE_RSHIFT) {
+                if (code == SDLK_LSHIFT || code == SDLK_RSHIFT) {
                     input->shift = true;
-                } else if (code == SDL_SCANCODE_LCTRL || code == SDL_SCANCODE_RCTRL) {
+                } else if (code == SDLK_LCTRL || code == SDLK_RCTRL) {
                     input->ctrl = true;
-                } else if (code == SDL_SCANCODE_LALT || code == SDL_SCANCODE_RALT) {
+                } else if (code == SDLK_LALT || code == SDLK_RALT) {
                     input->alt = true;
                 }
-                if (code == SDL_SCANCODE_ESCAPE) {
+                if (code == SDLK_ESCAPE) {
                     input->esc = true;
                 }
                 break;
@@ -110,15 +110,15 @@ void update_input(Input* input) {
     }
 }
 
-bool is_key_down(Input* input, SDL_Scancode key) {
+bool Input_keyDown(Input* input, SDL_Scancode key) {
     return List_contains(input->keysDown, (void*)key);
 }
 
-bool mouse_in_rect(Input* input, SDL_Rect rect) {
+bool Input_mouseInRect(Input* input, SDL_Rect rect) {
     if (!input) return false;
-    Position mouse = input->mousePos;
-    return mouse.x >= rect.x &&
-        mouse.x < rect.x + rect.w &&
-        mouse.y >= rect.y &&
-        mouse.y < rect.y + rect.h;
+    Position* mouse = input->mousePos;
+    return mouse->x >= rect.x &&
+        mouse->x < rect.x + rect.w &&
+        mouse->y >= rect.y &&
+        mouse->y < rect.y + rect.h;
 }

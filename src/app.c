@@ -7,7 +7,7 @@
 #include "logger.h"
 #include "utils.h"
 
-App* create_app(SDL_Window* window, SDL_Renderer* renderer) {
+App* App_create(SDL_Window* window, SDL_Renderer* renderer) {
     App* app = calloc(1, sizeof(App));
     if (!app) {
         error("Failed to allocate memory for App");
@@ -15,11 +15,12 @@ App* create_app(SDL_Window* window, SDL_Renderer* renderer) {
     }
     app->window = window;
     app->renderer = renderer;
+    //app->input = Input_create();
     app->running = true;
     return app;
 }
 
-void destroy_app(App* app) {
+void App_destroy(App* app) {
     if (!app) return;
     safe_free((void**)&app);
 }

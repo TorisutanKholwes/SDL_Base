@@ -30,12 +30,13 @@ void Map_destroy(Map* map);
 void Map_clear(Map* map);
 void Map_put(Map* map, void* key, void* value);
 void* Map_get(Map* map, void* key);
+MapNode* Map_find(Map* map, void* key);
 bool Map_containsKey(Map* map, void* key);
 bool Map_containsValue(Map* map, void* key);
 void Map_remove(Map* map, void* key);
 size_t Map_size(Map* map);
 bool Map_isEmpty(Map* map);
-void Map_toString(Map* map, const char* format, void* (*formatKeyFunc)(void* key), void* (*formatValueFunc)(void* value));
+char* Map_toString(Map* map, const char* keyFormat, const char* valueFormat, void* (*formatKeyFunc)(void* key), void* (*formatValueFunc)(void* value));
 
 MapIterator* Map_iterator(Map* map);
 void MapIterator_destroy(MapIterator* iterator);
@@ -44,3 +45,9 @@ void MapIterator_next(MapIterator* iterator);
 void* MapIterator_key(MapIterator* iterator);
 void* MapIterator_value(MapIterator* iterator);
 
+#define Map_put_int(map, key, value) Map_put(map, (void*)key, (void*)value)
+#define Map_put_decimal(map, key, value) \
+do { \
+__typeof__(value) _tmp = (value); \
+Map_put((map), (void*)key, &_tmp); \
+} while(0)

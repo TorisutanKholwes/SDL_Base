@@ -23,8 +23,8 @@ typedef struct {
     bool quit;
 } Input;
 
-Input* create_input();
-void destroy_input(Input* input);
-void update_input(Input* input);
-bool is_key_down(Input* input, SDL_Scancode key);
-bool mouse_in_rect(Input* input, SDL_Rect rect);
+Input* Input_create();
+void Input_destroy(Input* input);
+void Input_update(Input* input);
+bool Input_keyDown(Input* input, SDL_Scancode key);
+bool Input_mouseInRect(Input* input, SDL_Rect rect);

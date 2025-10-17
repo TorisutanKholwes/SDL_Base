@@ -11,8 +11,7 @@ typedef struct {
     SDL_Window* window;
     SDL_Renderer* renderer;
     bool running;
-    SDL_Event event;
 } App;
 
-App* create_app(SDL_Window* window, SDL_Renderer* renderer);
-void destroy_app(App* app);
+App* App_create(SDL_Window* window, SDL_Renderer* renderer);
+void App_destroy(App* app);

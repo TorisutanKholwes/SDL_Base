@@ -5,9 +5,11 @@
 #include "Settings.h"
 #include "init.h"
 #include "logger.h"
+#include "map.h"
 #include "utils.h"
 
 #if 1
+
 int main() {
     log_message(LOG_LEVEL_INFO, "Starting up app %s", APP_NAME);
     log_message(LOG_LEVEL_DEBUG, "Debug mode is enabled");
@@ -37,21 +39,20 @@ int main() {
     }
 
     log_message(LOG_LEVEL_INFO, "Successfully initialized SDL, Window and Renderer. Start looping app...");
-    App* app = create_app(window, renderer);
+    App* app = App_create(window, renderer);
+
     if (!app) {
         exit(EXIT_FAILURE);
     }
 
     while (app->running) {
-        while (SDL_PollEvent(&app->event)) {
-            if (app->event.type == SDL_EVENT_QUIT) {
-                app->running = false;
-            } else if (app->event.type == SDL_EVENT_KEY_DOWN) {
-                if (app->event.key.key == SDLK_ESCAPE) {
-                    app->running = false;
-                }
-            }
-        }
+
+        SDL_SetRenderDrawColor(renderer, 30, 144, 255, 255);
+        SDL_RenderClear(renderer);
+
+        SDL_FRect rect = {270, 190, 100, 100};
+        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+        SDL_RenderFillRect(renderer, &rect);
 
         SDL_RenderPresent(app->renderer);
 
@@ -59,7 +60,8 @@ int main() {
     }
 
     quit_sdl(app);
-    destroy_app(app);
+    App_destroy(app);
+    SDL_Quit();
     log_message(LOG_LEVEL_INFO, "App has been closed.");
     return EXIT_SUCCESS;
 }
@@ -67,6 +69,17 @@ int main() {
 
 #if 0
 int main() {
+
+    Map* map = Map_create();
+    Map_put_decimal(map, "foo", 100.5f);
+    Map_put_decimal(map, "testa", 200.32f);
+    Map_put_decimal(map, "test", 300.124f);
+    char* mapStr = Map_toString(map, "%s", "%.2f", NULL, NULL);
+    log_message(LOG_LEVEL_INFO, "Map contents: %s", mapStr);
+    safe_free((void**)&mapStr);
+    Map_destroy(map);
+    return 0;
+
 }
 #endif
 
