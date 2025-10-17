@@ -6,15 +6,14 @@
 #include "app.h"
 #include "logger.h"
 #include "utils.h"
-#include "init.h"
+#include "input.h"
 
 #if 1
-
 int main() {
     log_message(LOG_LEVEL_INFO, "Starting up app %s", APP_NAME);
     log_message(LOG_LEVEL_DEBUG, "Debug mode is enabled");
 
-    int exitStatus = init_sdl();
+    int exitStatus = init();
 
     if (exitStatus == EXIT_FAILURE) {
         exit(exitStatus);
@@ -46,11 +45,16 @@ int main() {
     }
 
     while (app->running) {
+        Input_update(app->input);
+
+        if (app->input->quit) {
+            app->running = false;
+        }
 
         SDL_SetRenderDrawColor(renderer, 30, 144, 255, 255);
         SDL_RenderClear(renderer);
 
-        SDL_FRect rect = {270, 190, 100, 100};
+        SDL_FRect rect = createRect(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2, 100, 100);
         SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
         SDL_RenderFillRect(renderer, &rect);
 
@@ -59,9 +63,8 @@ int main() {
         SDL_Delay(16); // Roughly 60 FPS
     }
 
-    quit_sdl(app);
+    App_quit(app);
     App_destroy(app);
-    SDL_Quit();
     log_message(LOG_LEVEL_INFO, "App has been closed.");
     return EXIT_SUCCESS;
 }

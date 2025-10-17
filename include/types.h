@@ -22,3 +22,7 @@ typedef struct MapIterator MapIterator;
 typedef struct StringBuilder StringBuilder;
 
 typedef struct Position Position;
+typedef struct Color Color;
+
+typedef struct Button Button;
+typedef struct Text Text;

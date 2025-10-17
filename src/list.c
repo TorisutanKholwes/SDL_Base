@@ -163,3 +163,39 @@ char* List_toString(List* list, const char* format, void* (*formatValueFunc)(voi
     StringBuilder_destroy(sb);
     return result;
 }
+
+ListIterator* List_iterator(List* list) {
+    ListIterator* iterator = calloc(1, sizeof(ListIterator));
+    if (!iterator) {
+        error("Failed to allocate memory for ListIterator");
+        return NULL;
+    }
+    iterator->head = list->head;
+    iterator->current = list->head->next;
+    iterator->index = 0;
+    return iterator;
+}
+
+void ListIterator_destroy(ListIterator* iterator) {
+    if (!iterator) return;
+    safe_free((void**)&iterator);
+}
+
+bool ListIterator_hasNext(ListIterator* iterator) {
+    return iterator->current != iterator->head;
+}
+
+void* ListIterator_next(ListIterator* iterator) {
+    if (!ListIterator_hasNext(iterator)) {
+        error("No more elements in ListIterator");
+        return NULL;
+    }
+    void* value = iterator->current->value;
+    iterator->current = iterator->current->next;
+    iterator->index++;
+    return value;
+}
+
+int ListIterator_index(ListIterator* iterator) {
+    return iterator->index - 1;
+}
