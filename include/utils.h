@@ -5,11 +5,11 @@
 
 #pragma once
 
-#include "app.h"
+#include "Settings.h"
 
-typedef struct {
+struct Position {
     int x, y;
-} Position;
+};
 
 Position* Position_new(int x, int y);
 void Position_destroy(Position* pos);

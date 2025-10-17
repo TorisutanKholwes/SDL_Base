@@ -5,6 +5,9 @@
 #include "input.h"
 
 #include "logger.h"
+#include "list.h"
+#include "map.h"
+#include "utils.h"
 
 Input* Input_create() {
     Input* input = calloc(1, sizeof(Input));

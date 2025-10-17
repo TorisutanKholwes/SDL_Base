@@ -7,11 +7,12 @@
 
 #include "Settings.h"
 
-typedef struct {
+struct App {
     SDL_Window* window;
     SDL_Renderer* renderer;
+    Input* input;
     bool running;
-} App;
+};
 
 App* App_create(SDL_Window* window, SDL_Renderer* renderer);
 void App_destroy(App* app);

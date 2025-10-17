@@ -7,7 +7,6 @@
 
 #include "Settings.h"
 
-typedef struct MapNode MapNode;
 struct MapNode {
     void* key;
     void* value;
@@ -15,15 +14,15 @@ struct MapNode {
     MapNode* prev;
 };
 
-typedef struct {
+struct Map {
     MapNode* root;
     size_t size;
-} Map;
+};
 
-typedef struct {
+struct MapIterator {
     MapNode* root;
     MapNode* current;
-} MapIterator;
+};
 
 Map* Map_create();
 void Map_destroy(Map* map);

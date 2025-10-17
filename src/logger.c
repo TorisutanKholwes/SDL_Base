@@ -3,6 +3,7 @@
  * ALl rights reserved
  */
 #include "logger.h"
+#include "ansi.h"
 
 static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 

@@ -9,11 +9,11 @@
 
 #define DEFAULT_CAPACITY 64
 
-typedef struct {
+struct StringBuilder {
     char* data;
     size_t length;
     size_t capacity;
-} StringBuilder;
+};
 
 StringBuilder* StringBuilder_create(size_t init_capacity);
 void StringBuilder_destroy(StringBuilder* builder);

@@ -6,13 +6,11 @@
 #pragma once
 
 #include "Settings.h"
-#include "utils.h"
-#include "list.h"
-#include "map.h"
+
 
 #define MAX_KEY_DOWN 256
 
-typedef struct {
+struct Input {
     List* keysDown;
     SDL_Scancode lastPressed;
     Map* eventHandlers;
@@ -21,7 +19,7 @@ typedef struct {
     bool shift, ctrl, alt;
     bool esc;
     bool quit;
-} Input;
+};
 
 Input* Input_create();
 void Input_destroy(Input* input);

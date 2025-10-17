@@ -7,7 +7,6 @@
 
 #include "Settings.h"
 
-typedef struct ListNode ListNode;
 struct ListNode {
     ListNode* prev;
     ListNode* next;
@@ -15,16 +14,16 @@ struct ListNode {
 };
 
 
-typedef struct {
+struct List {
     ListNode* head;
     size_t size;
-} List;
+};
 
-typedef struct {
+struct ListIterator {
     ListNode* head;
     ListNode* current;
     int index;
-} ListIterator;
+};
 
 List* List_create();
 void List_destroy(List* list);

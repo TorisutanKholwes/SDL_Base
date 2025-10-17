@@ -3,7 +3,7 @@
  * ALl rights reserved
  */
 #include "utils.h"
-
+#include "app.h"
 #include "logger.h"
 
 Position* Position_new(const int x, const int y) {
