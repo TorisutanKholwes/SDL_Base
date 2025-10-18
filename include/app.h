@@ -13,6 +13,7 @@ struct App {
     MIX_Mixer* mixer;
     Input* input;
     List* stack;
+    Theme* theme;
     ResourceManager* manager;
     bool running;
 };
@@ -20,3 +21,5 @@ struct App {
 App* App_create(SDL_Window* window, SDL_Renderer* renderer, SDL_AudioSpec *audioSpec);
 void App_destroy(App* app);
 void App_quit(const App *app);
+Frame* App_getCurrentFrame(const App* app);
+void App_getCurrentSize(const App* app, int* w, int* h);

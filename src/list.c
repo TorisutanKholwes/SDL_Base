@@ -7,8 +7,8 @@
 #include "utils.h"
 #include "string_builder.h"
 
-List* List_create() {
-    List* list = calloc(1, sizeof(List));
+List *List_create() {
+    List *list = calloc(1, sizeof(List));
     if (!list) {
         error("Failed to allocate memory for List");
         return NULL;
@@ -16,7 +16,7 @@ List* List_create() {
     list->head = calloc(1, sizeof(ListNode));
     if (!list->head) {
         error("Failed to allocate memory for ListNode");
-        safe_free((void**)&list);
+        safe_free((void **) &list);
         return NULL;
     }
     list->head->prev = list->head;
@@ -25,17 +25,28 @@ List* List_create() {
     return list;
 }
 
-void List_destroy(List* list) {
+void List_destroy(List *list) {
     if (!list) return;
     List_clear(list);
-    safe_free((void**)&list);
+    safe_free((void **) &list);
 }
 
-void List_clear(List* list) {
-    ListNode* node = list->head;
+void List_destroyWitValues(List* list, void (*destroyValueFunc)(void* value)) {
+    ListNode *node = list->head->next;
+    while (node != list->head) {
+        if (destroyValueFunc) {
+            destroyValueFunc(node->value);
+        }
+        node = node->next;
+    }
+    List_destroy(list);
+}
+
+void List_clear(List *list) {
+    ListNode *node = list->head;
     while (node) {
-        ListNode* next = node->next;
-        safe_free((void**)&next);
+        ListNode *next = node->next;
+        safe_free((void **) &next);
         node = next;
     }
     list->size = 0;
@@ -43,13 +54,13 @@ void List_clear(List* list) {
     list->head->next = list->head;
 }
 
-void List_push(List* list, void* value) {
-    ListNode* node = calloc(1, sizeof(ListNode));
+void List_push(List *list, void *value) {
+    ListNode *node = calloc(1, sizeof(ListNode));
     if (!node) {
         error("Failed to allocate memory for ListNode");
         return;
     }
-    ListNode* last = list->head->prev;
+    ListNode *last = list->head->prev;
     list->head->prev = node;
     node->value = value;
     node->prev = last;
@@ -58,15 +69,15 @@ void List_push(List* list, void* value) {
     list->size++;
 }
 
-void List_remove(List* list, void* value) {
-    ListNode* node = list->head->next;
+void List_remove(List *list, void *value) {
+    ListNode *node = list->head->next;
     while (node != list->head) {
         if (node->value == value) {
-            ListNode* prev = node->prev;
-            ListNode* next = node->next;
+            ListNode *prev = node->prev;
+            ListNode *next = node->next;
             prev->next = next;
             next->prev = prev;
-            safe_free((void**)&node);
+            safe_free((void **) &node);
             list->size--;
             return;
         }
@@ -74,35 +85,35 @@ void List_remove(List* list, void* value) {
     }
 }
 
-void* List_pop(List* list, size_t index) {
+void *List_pop(List *list, size_t index) {
     if (index >= list->size || list->size == 0) {
         error("Index out of bounds");
         return NULL;
     }
-    ListNode* node = list->head->next;
+    ListNode *node = list->head->next;
     for (size_t i = 0; i < index; i++) {
         node = node->next;
     }
-    void* value = node->value;
-    ListNode* prev = node->prev;
-    ListNode* next = node->next;
+    void *value = node->value;
+    ListNode *prev = node->prev;
+    ListNode *next = node->next;
     prev->next = next;
     next->prev = prev;
-    safe_free((void**)&node);
+    safe_free((void **) &node);
     list->size--;
     return value;
 }
 
-size_t List_size(List* list) {
+size_t List_size(List *list) {
     return list->size;
 }
 
-bool List_empty(List* list) {
+bool List_empty(List *list) {
     return list->size == 0;
 }
 
-bool List_contains(List* list, void* value) {
-    ListNode* node = list->head->next;
+bool List_contains(List *list, void *value) {
+    ListNode *node = list->head->next;
     while (node != list->head) {
         if (node->value == value) {
             return true;
@@ -112,45 +123,53 @@ bool List_contains(List* list, void* value) {
     return false;
 }
 
-void* List_get(List* list, size_t index) {
+void *List_get(List *list, size_t index) {
     if (index >= list->size) {
         error("Index out of bounds");
         return NULL;
     }
-    ListNode* node = list->head->next;
+    ListNode *node = list->head->next;
     for (size_t i = 0; i < index; i++) {
         node = node->next;
     }
     return node->value;
 }
 
-void List_set(List* list, size_t index, void* value) {
+void *List_getLast(List *list) {
+    if (list->size == 0) {
+        error("List is empty");
+        return NULL;
+    }
+    return list->head->prev->value;
+}
+
+void List_set(List *list, size_t index, void *value) {
     if (index >= list->size) {
         error("Index out of bounds");
         return;
     }
-    ListNode* node = list->head->next;
+    ListNode *node = list->head->next;
     for (size_t i = 0; i < index; i++) {
         node = node->next;
     }
     node->value = value;
 }
 
-char* List_toString(List* list, const char* format, void* (*formatValueFunc)(void* value)) {
-    StringBuilder* sb = StringBuilder_create(DEFAULT_CAPACITY);
+char *List_toString(List *list, const char *format, void * (*formatValueFunc)(void *value)) {
+    StringBuilder *sb = StringBuilder_create(DEFAULT_CAPACITY);
     if (!sb) return NULL;
     StringBuilder_append(sb, "[");
-    ListNode* node = list->head->next;
+    ListNode *node = list->head->next;
     while (node != list->head) {
-        void* value = node->value;
+        void *value = node->value;
         if (formatValueFunc) {
             value = formatValueFunc(node->value);
         }
         if (strstr(format, "f")) {
-            StringBuilder_append_format(sb, format, *(float*)value);
+            StringBuilder_append_format(sb, format, *(float *) value);
         } else if (strstr(format, "lf")) {
-            StringBuilder_append_format(sb, format, *(double*)value);
-        }  else {
+            StringBuilder_append_format(sb, format, *(double *) value);
+        } else {
             StringBuilder_append_format(sb, format, value);
         }
         if (node->next != list->head) {
@@ -159,13 +178,13 @@ char* List_toString(List* list, const char* format, void* (*formatValueFunc)(voi
         node = node->next;
     }
     StringBuilder_append(sb, "]");
-    char* result = StringBuilder_build(sb);
+    char *result = StringBuilder_build(sb);
     StringBuilder_destroy(sb);
     return result;
 }
 
-ListIterator* List_iterator(List* list) {
-    ListIterator* iterator = calloc(1, sizeof(ListIterator));
+ListIterator *ListIterator_new(List *list) {
+    ListIterator *iterator = calloc(1, sizeof(ListIterator));
     if (!iterator) {
         error("Failed to allocate memory for ListIterator");
         return NULL;
@@ -176,26 +195,26 @@ ListIterator* List_iterator(List* list) {
     return iterator;
 }
 
-void ListIterator_destroy(ListIterator* iterator) {
+void ListIterator_destroy(ListIterator *iterator) {
     if (!iterator) return;
-    safe_free((void**)&iterator);
+    safe_free((void **) &iterator);
 }
 
-bool ListIterator_hasNext(ListIterator* iterator) {
+bool ListIterator_hasNext(ListIterator *iterator) {
     return iterator->current != iterator->head;
 }
 
-void* ListIterator_next(ListIterator* iterator) {
+void *ListIterator_next(ListIterator *iterator) {
     if (!ListIterator_hasNext(iterator)) {
         error("No more elements in ListIterator");
         return NULL;
     }
-    void* value = iterator->current->value;
+    void *value = iterator->current->value;
     iterator->current = iterator->current->next;
     iterator->index++;
     return value;
 }
 
-int ListIterator_index(ListIterator* iterator) {
+int ListIterator_index(ListIterator *iterator) {
     return iterator->index - 1;
 }

@@ -61,3 +61,11 @@ void App_quit(const App *app) {
         SDL_DestroyRenderer(app->renderer);
     SDL_Quit();
 }
+
+Frame* App_getCurrentFrame(const App* app) {
+    return List_getLast(app->stack);
+}
+
+void App_getCurrentSize(const App* app, int* w, int* h) {
+    SDL_GetWindowSize(app->window, w, h);
+}

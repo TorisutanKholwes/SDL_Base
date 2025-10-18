@@ -6,7 +6,7 @@
 #include "app.h"
 #include "logger.h"
 
-Position* Position_new(const int x, const int y) {
+Position* Position_new(const float x, const float y) {
     Position* pos = calloc(1, sizeof(Position));
     if (!pos) {
         error("Failed to allocate memory for Position");
@@ -20,6 +20,10 @@ Position* Position_new(const int x, const int y) {
 void Position_destroy(Position* pos) {
     if (!pos) return;
     safe_free((void**)&pos);
+}
+
+bool Position_equals(const Position* a, const Position* b) {
+    return (a->x == b->x) && (a->y == b->y);
 }
 
 void safe_free(void** ptr) {

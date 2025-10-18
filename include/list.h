@@ -27,6 +27,7 @@ struct ListIterator {
 
 List* List_create();
 void List_destroy(List* list);
+void List_destroyWitValues(List* list, void (*destroyValueFunc)(void* value));
 void List_clear(List* list);
 void List_push(List* list, void* value);
 void List_remove(List* list, void* value);
@@ -36,10 +37,11 @@ size_t List_size(List* list);
 bool List_empty(List* list);
 bool List_contains(List* list, void* value);
 void* List_get(List* list, size_t index);
+void* List_getLast(List* list);
 void List_set(List* list, size_t index, void* value);
 char* List_toString(List* list, const char* format, void* (*formatValueFunc)(void* value));
 
-ListIterator* List_iterator(List* list);
+ListIterator* ListIterator_new(List* list);
 void ListIterator_destroy(ListIterator* iterator);
 bool ListIterator_hasNext(ListIterator* iterator);
 void* ListIterator_next(ListIterator* iterator);

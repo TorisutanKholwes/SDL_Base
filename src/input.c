@@ -69,7 +69,7 @@ void Input_update(Input* input) {
     while (SDL_PollEvent(&evt)) {
         if (input->eventHandlers && Map_containsKey(input->eventHandlers, (void*)evt.type)) {
             List* handlers = Map_get(input->eventHandlers, (void*)evt.type);
-            ListIterator* it = List_iterator(handlers);
+            ListIterator* it = ListIterator_new(handlers);
             while (ListIterator_hasNext(it)) {
                 const EventHandler* handler = ListIterator_next(it);
                 if (handler) {
@@ -84,7 +84,7 @@ void Input_update(Input* input) {
             case SDL_EVENT_KEY_DOWN:
                 if (input->keyEventHandlers && Map_containsKey(input->keyEventHandlers, (void*)evt.key.key)) {
                     List* handlers = Map_get(input->keyEventHandlers, (void*)evt.type);
-                    ListIterator* it = List_iterator(handlers);
+                    ListIterator* it = ListIterator_new(handlers);
                     while (ListIterator_hasNext(it)) {
                         const EventHandler* handler = ListIterator_next(it);
                         if (handler) {
