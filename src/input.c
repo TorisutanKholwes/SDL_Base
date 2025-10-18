@@ -71,9 +71,9 @@ void Input_update(Input* input) {
             List* handlers = Map_get(input->eventHandlers, (void*)evt.type);
             ListIterator* it = List_iterator(handlers);
             while (ListIterator_hasNext(it)) {
-                void (*handler)(Input*, SDL_Event*) = ListIterator_next(it);
+                const EventHandler* handler = ListIterator_next(it);
                 if (handler) {
-                    handler(input, &evt);
+                    handler->func(input, &evt, handler->data);
                 }
             }
         }
@@ -86,9 +86,9 @@ void Input_update(Input* input) {
                     List* handlers = Map_get(input->keyEventHandlers, (void*)evt.type);
                     ListIterator* it = List_iterator(handlers);
                     while (ListIterator_hasNext(it)) {
-                        void (*handler)(Input*, SDL_Event*) = ListIterator_next(it);
+                        const EventHandler* handler = ListIterator_next(it);
                         if (handler) {
-                            handler(input, &evt);
+                            handler->func(input, &evt, handler->data);
                         }
                     }
                 }
@@ -142,14 +142,25 @@ bool Input_keyDown(Input* input, SDL_Scancode key) {
 bool Input_mouseInRect(Input* input, SDL_Rect rect) {
     if (!input) return false;
     Position* mouse = input->mousePos;
+    if (!mouse) {
+        log_message(LOG_LEVEL_WARN, "Mouse don't have a position set");
+        return false;
+    }
     return mouse->x >= rect.x &&
         mouse->x < rect.x + rect.w &&
         mouse->y >= rect.y &&
         mouse->y < rect.y + rect.h;
 }
 
-void Input_addKeyEventHandler(Input* input, SDL_Scancode key, void (*handler)(Input* input, SDL_Event* event)) {
-    if (!input || !handler) return;
+void Input_addKeyEventHandler(Input* input, SDL_Scancode key, EventHandlerFunc func, void* data) {
+    if (!input || !func) return;
+    EventHandler* handler = calloc(1, sizeof(EventHandler));
+    if (!handler) {
+        error("Failed to allocate memory for EventHandler");
+        return;
+    }
+    handler->func = func;
+    handler->data = data;
     if (!Map_containsKey(input->keyEventHandlers, (void*)key)) {
         List* handlers = List_create();
         List_push(handlers, (void*)handler);
@@ -170,8 +181,15 @@ void Input_clearKeyEventHandlers(Input* input) {
     Map_clear(input->keyEventHandlers);
 }
 
-void Input_addEventHandler(Input* input, Uint32 eventType, void (*handler)(Input* input, SDL_Event* event)) {
-    if (!input || !handler) return;
+void Input_addEventHandler(Input* input, Uint32 eventType, EventHandlerFunc func, void* data) {
+    if (!input || !func) return;
+    EventHandler* handler = calloc(1, sizeof(EventHandler));
+    if (!handler) {
+        error("Failed to allocate memory for EventHandler");
+        return;
+    }
+    handler->func = func;
+    handler->data = data;
     if (!Map_containsKey(input->eventHandlers, (void*)eventType)) {
         List* handlers = List_create();
         List_push(handlers, (void*)handler);

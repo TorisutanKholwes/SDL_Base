@@ -7,7 +7,6 @@
 
 #include "Settings.h"
 
-
 #define MAX_KEY_DOWN 256
 
 struct Input {
@@ -22,14 +21,19 @@ struct Input {
     bool quit;
 };
 
+struct EventHandler {
+    EventHandlerFunc func;
+    void* data;
+};
+
 Input* Input_create();
 void Input_destroy(Input* input);
 void Input_update(Input* input);
 bool Input_keyDown(Input* input, SDL_Scancode key);
 bool Input_mouseInRect(Input* input, SDL_Rect rect);
-void Input_addKeyEventHandler(Input* input, SDL_Scancode key, void (*handler)(Input* input, SDL_Event* event));
+void Input_addKeyEventHandler(Input* input, SDL_Scancode key, EventHandlerFunc func, void* data);
 void Input_removeKeyEventHandler(Input* input, SDL_Scancode key);
 void Input_clearKeyEventHandlers(Input* input);
-void Input_addEventHandler(Input* input, Uint32 eventType, void (*handler)(Input* input, SDL_Event* event));
+void Input_addEventHandler(Input* input, Uint32 eventType, EventHandlerFunc func, void* data);
 void Input_removeEventHandler(Input* input, Uint32 eventType);
 void Input_clearEventHandlers(Input* input);

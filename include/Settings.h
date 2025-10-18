@@ -12,7 +12,14 @@
 #define WINDOW_TITLE "SDL3 Template Application"
 #define FRAME_RATE 60
 
-#define PRODUCTION 0
+#define PRODUCTION 0 // Set to 1 for production build, 0 for development
+
+#ifdef _MSC_VER
+#  define INLINE inline
+#else
+#  define INLINE static inline
+#endif
+
 
 // Include standard libraries
 #include <assert.h>
