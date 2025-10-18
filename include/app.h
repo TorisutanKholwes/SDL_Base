@@ -10,11 +10,13 @@
 struct App {
     SDL_Window* window;
     SDL_Renderer* renderer;
+    MIX_Mixer* mixer;
     Input* input;
     List* stack;
+    ResourceManager* manager;
     bool running;
 };
 
-App* App_create(SDL_Window* window, SDL_Renderer* renderer);
+App* App_create(SDL_Window* window, SDL_Renderer* renderer, SDL_AudioSpec *audioSpec);
 void App_destroy(App* app);
 void App_quit(const App *app);
