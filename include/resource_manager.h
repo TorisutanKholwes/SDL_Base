@@ -12,7 +12,8 @@
 #define FONT_PATH    ASSETS_PATH "fonts/"
 #define SOUND_PATH   ASSETS_PATH "sounds/"
 
-#define DEFAULT_FONT "Cinzel-Regular.ttf"
+#define DEFAULT_FONT "Montserrat.ttf"
+#define DEFAULT_BOLD_FONT "Cinzel-Bold.ttf"
 
 struct ResourceManager {
     SDL_Renderer* renderer;
@@ -30,4 +31,8 @@ MIX_Audio* ResourceManager_getSound(ResourceManager* self, const char* filename)
 
 INLINE TTF_Font* ResourceManager_getDefaultFont(ResourceManager* self, int size) {
     return ResourceManager_getFont(self, DEFAULT_FONT, size);
+}
+
+INLINE TTF_Font* ResourceManager_getDefaultBoldFont(ResourceManager* self, int size) {
+    return ResourceManager_getFont(self, DEFAULT_BOLD_FONT, size);
 }
