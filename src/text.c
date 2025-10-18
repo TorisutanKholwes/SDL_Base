@@ -71,11 +71,11 @@ void refreshTexture(Text* self) {
     self->texture = SDL_CreateTextureFromSurface(self->renderer, surface);
     if (!self->texture) {
         error("Failed to create text texture.");
-        SDL_FreeSurface(surface);
+        SDL_DestroySurface(surface);
         return;
     }
 
-    SDL_FreeSurface(surface);
+    SDL_DestroySurface(surface);
 }
 
 void Text_render(Text* self, float x, float y) {
@@ -84,7 +84,14 @@ void Text_render(Text* self, float x, float y) {
     SDL_GetTextureSize(self->texture, &w, &h);
 
     SDL_FRect dst = { x, y, w, h };
-    if (SDL_RenderCopyF(self->renderer, self->texture, NULL, &dst) != 0) {
-        error("Failed to render text texture.");
+    if (!SDL_RenderTexture(self->renderer, self->texture, NULL, &dst)) {
+        error("Failed to render text texture : %s", SDL_GetError());
     }
+}
+
+Size Text_getSize(Text* self) {
+    Size size = { 0 };
+    if (!self || !self->texture) return size;
+    SDL_GetTextureSize(self->texture, &size.width, &size.height);
+    return size;
 }

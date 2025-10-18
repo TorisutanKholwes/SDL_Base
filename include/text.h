@@ -20,3 +20,4 @@ void Text_destroy(Text* self);
 void Text_setString(Text* self, const char* str);
 void Text_setColor(Text* self, SDL_Color color);
 void Text_render(Text* self, float x, float y);
+Size Text_getSize(Text* self);

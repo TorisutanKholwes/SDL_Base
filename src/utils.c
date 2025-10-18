@@ -60,6 +60,18 @@ SDL_FRect createRect(const float x, const float y, const float w, const float h)
     return rect;
 }
 
+void SDL_RenderStroke(SDL_Renderer* renderer, const SDL_FRect* rect, const float thickness) {
+    const SDL_FRect top = { rect->x, rect->y, rect->w, thickness };
+    const SDL_FRect bottom = { rect->x, rect->y + rect->h - thickness, rect->w, thickness };
+    const SDL_FRect left = { rect->x, rect->y, thickness, rect->h };
+    const SDL_FRect right = { rect->x + rect->w - thickness, rect->y, thickness, rect->h };
+
+    SDL_RenderFillRect(renderer, &top);
+    SDL_RenderFillRect(renderer, &bottom);
+    SDL_RenderFillRect(renderer, &left);
+    SDL_RenderFillRect(renderer, &right);
+}
+
 Color* Color_rgb(const int r, const int g, const int b) {
     return Color_rgba(r, g, b, 255);
 }
@@ -128,4 +140,27 @@ char* Strdup(const char* str) {
     }
     copy[len] = '\0';
     return copy;
+}
+
+// To remove
+#include <dirent.h>
+#include <sys/stat.h>
+
+
+int file_exists(const char* path) {
+    struct stat buffer;
+    return (stat(path, &buffer) == 0);
+}
+
+void list_dir(const char* path) {
+    DIR* dir = opendir(path);
+    if (!dir) {
+        printf("Impossible d’ouvrir le dossier : %s\n", path);
+        return;
+    }
+    struct dirent* entry;
+    while ((entry = readdir(dir)) != NULL) {
+        printf("%s\n", entry->d_name);
+    }
+    closedir(dir);
 }
