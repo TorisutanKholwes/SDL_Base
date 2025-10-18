@@ -26,10 +26,24 @@ typedef struct StringBuilder StringBuilder;
 typedef struct Position Position;
 typedef struct Color Color;
 
+typedef enum ElementType ElementType;
+typedef struct Element Element;
+
 typedef struct Button Button;
 typedef struct Text Text;
 
 typedef struct ResourceManager ResourceManager;
+
+typedef struct EdgeInsets EdgeInsets;
+typedef struct TextStyle TextStyle;
+typedef struct ButtonStyleColors ButtonStyleColors;
+typedef struct ButtonStyle ButtonStyle;
+typedef struct Theme Theme;
+
+typedef struct Frame Frame;
+
+// Frames
+typedef struct MainFrame MainFrame;
 
 // Structure who's not used as a pointer elsewhere
 typedef struct {
@@ -38,3 +52,6 @@ typedef struct {
 
 // Types of func
 typedef void (*EventHandlerFunc)(Input* input, SDL_Event* evt, void* data);
+
+typedef void (*FrameUpdateFunc)(Frame* frame, void* data);
+typedef void (*FrameRenderFunc)(Frame* frame, SDL_Renderer* renderer, void* data);

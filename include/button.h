@@ -14,9 +14,7 @@ struct Button {
     Text* text;
     SDL_FRect rect;
 
-    Color* border_color;
-    Color* fill_color;
-    Color* text_color;
+    ButtonStyle* style;
 
     Input* input;
 
@@ -28,9 +26,11 @@ struct Button {
     EventHandlerFunc onHoverEnd;
 };
 
-Button* Button_new(const App* app, const char* label, SDL_FRect rect, Color* border_color, Color* fill_color, Color* text_color, TTF_Font* font);
+Button* Button_new(const App* app, const char* label, SDL_FRect rect, ButtonStyle* style);
 void Button_destroy(Button* button);
-void Button_render(SDL_Renderer* renderer, Button* button);
+void Button_render(Button* button, SDL_Renderer* renderer);
+void Button_setString(Button* button, const char* str);
+void Button_setStringf(Button* button, const char* format, ...);
 void Button_update(Button* button);
 void Button_onClick(Button* button, EventHandlerFunc func);
 void Button_onHover(Button* button, EventHandlerFunc func);

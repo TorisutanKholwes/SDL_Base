@@ -9,15 +9,18 @@
 
 struct Text {
     char* text;
-    TTF_Font* font;
-    SDL_Color color;
     SDL_Texture* texture;
     SDL_Renderer* renderer;
+    Position* position;
+    TextStyle* style;
+    bool fromCenter;
 };
 
-Text* Text_new(SDL_Renderer* renderer, TTF_Font* font, const char* str, SDL_Color color);
+Text* Text_new(SDL_Renderer* renderer, const char* str, TextStyle* style, Position* position, bool fromCenter);
 void Text_destroy(Text* self);
 void Text_setString(Text* self, const char* str);
-void Text_setColor(Text* self, SDL_Color color);
-void Text_render(Text* self, float x, float y);
+void Text_setStringf(Text* self, const char* format, ...);
+void Text_setColor(Text* self, Color* color);
+void Text_setPosition(Text* self, float x, float y);
+void Text_render(Text* self);
 Size Text_getSize(Text* self);

@@ -9,21 +9,27 @@
 #include "text.h"
 #include "app.h"
 #include "input.h"
+#include "style.h"
 
 static void Button_checkHover(Input* input, SDL_Event* evt, void* buttonData);
 static void Button_checkPressed(Input* input, SDL_Event* evt, void* buttonData);
 
-Button* Button_new(const App* app, const char* label, SDL_FRect rect, Color* border_color, Color* fill_color, Color* text_color, TTF_Font* font) {
+Button* Button_new(const App* app, const char* label, SDL_FRect rect, ButtonStyle* style) {
     Button* button = calloc(1, sizeof(Button));
     if (!button) {
         error("Failed to allocate memory for Button");
         return NULL;
     }
-    button->text = Text_new(app->renderer, font, label, Color_toSDLColor(text_color));
+    button->text = Text_new(app->renderer, label, TextStyle_new(
+        style->text_font,
+        style->text_size,
+        style->colors->text,
+        style->text_style,
+        EdgeInsets_zero(),
+        EdgeInsets_zero()
+    ), Position_null(), false);
     button->rect = rect;
-    button->border_color = border_color;
-    button->fill_color = fill_color;
-    button->text_color = text_color;
+    button->style = style;
     button->input = app->input;
     button->hovered = false;
     button->pressed = false;
@@ -37,34 +43,46 @@ Button* Button_new(const App* app, const char* label, SDL_FRect rect, Color* bor
 void Button_destroy(Button* button) {
     if (!button) return;
     Text_destroy(button->text);
-    safe_free((void**)&button->border_color);
-    safe_free((void**)&button->fill_color);
+    ButtonStyle_destroy(button->style);
     safe_free((void**)&button);
 }
 
-void Button_render(SDL_Renderer* renderer, Button* button) {
-    Color* border = button->hovered ? button->fill_color : button->border_color;
-    Color* fill = button->pressed ? Color_rgba(0, 0, 0, 0) : button->hovered ? button->border_color : button->fill_color;
+void Button_render(Button* button, SDL_Renderer* renderer) {
+
+    Text_setColor(button->text, button->style->colors->text);
+
+    Color* border = button->style->colors->border;
+    Color* fill = button->style->colors->background;
     SDL_SetRenderDrawColor(renderer, border->r, border->g, border->b, border->a);
-    if (button->pressed) {
-        Text_setColor(button->text, Color_toSDLColor(button->fill_color));
-        SDL_RenderStroke(renderer, &button->rect, 2.0f);
-    } else {
-        Text_setColor(button->text, Color_toSDLColor(button->text_color));
-        SDL_FRect borderRect = { button->rect.x - 2, button->rect.y - 2, button->rect.w + 4, button->rect.h + 4};
-        SDL_RenderFillRect(renderer, &borderRect);
-    }
+    SDL_FRect borderRect = { button->rect.x - 2, button->rect.y - 2, button->rect.w + 4, button->rect.h + 4};
+    SDL_RenderFillRect(renderer, &borderRect);
 
     SDL_SetRenderDrawColor(renderer, fill->r, fill->g, fill->b, fill->a);
     SDL_RenderFillRect(renderer, &button->rect);
 
     const float textX = button->rect.x + (button->rect.w / 2) - (Text_getSize(button->text).width / 2);
     const float textY = button->rect.y + (button->rect.h / 2) - (Text_getSize(button->text).height / 2);
-    Text_render(button->text, textX, textY);
+    Text_setPosition(button->text, textX, textY);
+    Text_render(button->text);
 }
 
 void Button_update(Button* button) {
 
+}
+
+void Button_setString(Button* button, const char* str) {
+    if (!str || !button) return;
+    Text_setString(button->text, str);
+}
+
+void Button_setStringf(Button* button, const char* format, ...) {
+    if (!format || !button) return;
+    va_list args;
+    va_start(args, format);
+    char buffer[1024];
+    vsnprintf(buffer, sizeof(buffer), format, args);
+    va_end(args);
+    Text_setString(button->text, buffer);
 }
 
 static void Button_checkHover(Input* input, SDL_Event* evt, void* buttonData) {

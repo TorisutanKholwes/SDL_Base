@@ -5,20 +5,22 @@
 #include "text.h"
 
 #include "logger.h"
+#include "style.h"
 #include "utils.h"
 
 void refreshTexture(Text* self);
 
-Text* Text_new(SDL_Renderer* renderer, TTF_Font* font, const char* str, SDL_Color color) {
+Text* Text_new(SDL_Renderer* renderer, const char* str, TextStyle* style, Position* position, bool fromCenter) {
     Text* text = calloc(1, sizeof(Text));
     if (!text) {
         error("Failed to allocate memory for Text");
         return NULL;
     }
     text->renderer = renderer;
-    text->font = font;
     text->text = Strdup(str);
-    text->color = color;
+    text->style = style;
+    text->position = position;
+    text->fromCenter = fromCenter;
     text->texture = NULL;
 
     refreshTexture(text);
@@ -32,12 +34,13 @@ void Text_destroy(Text* self) {
     if (self->texture) {
         SDL_DestroyTexture(self->texture);
     }
+    TextStyle_destroy(self->style);
     safe_free((void**)&(self->text));
     safe_free((void**)&self);
 }
 
 void Text_setString(Text* self, const char* str) {
-    if (strcmp(self->text, str) == 0) {
+    if (self->text && strcmp(self->text, str) == 0) {
         return;
     }
 
@@ -47,13 +50,32 @@ void Text_setString(Text* self, const char* str) {
     refreshTexture(self);
 }
 
-void Text_setColor(Text* self, SDL_Color color) {
-    if (memcmp(&(self->color), &color, sizeof(SDL_Color)) == 0) {
+void Text_setStringf(Text* self, const char* format, ...) {
+    if (!format) return;
+    va_list args;
+    va_start(args, format);
+    char buffer[1024];
+    vsnprintf(buffer, sizeof(buffer), format, args);
+    va_end(args);
+    Text_setString(self, buffer);
+}
+
+void Text_setColor(Text* self, Color* color) {
+    if (memcmp(&(self->style->color), color, sizeof(Color)) == 0) {
         return;
     }
 
-    self->color = color;
+    self->style->color = color;
     refreshTexture(self);
+}
+
+void Text_setPosition(Text* self, float x, float y) {
+    if (!self->position) {
+        self->position = Position_new(x, y);
+    } else {
+        self->position->x = x;
+        self->position->y = y;
+    }
 }
 
 void refreshTexture(Text* self) {
@@ -61,8 +83,12 @@ void refreshTexture(Text* self) {
         SDL_DestroyTexture(self->texture);
         self->texture = NULL;
     }
+    if (!self->text) {
+        log_message(LOG_LEVEL_WARN, "Text has no string to render.");
+        return;
+    }
 
-    SDL_Surface *surface = TTF_RenderText_Blended(self->font, self->text, strlen(self->text), self->color);
+    SDL_Surface *surface = TTF_RenderText_Blended(self->style->font, self->text, strlen(self->text), Color_toSDLColor(self->style->color));
     if (!surface) {
         error("Failed to create text surface.");
         return;
@@ -78,10 +104,24 @@ void refreshTexture(Text* self) {
     SDL_DestroySurface(surface);
 }
 
-void Text_render(Text* self, float x, float y) {
+void Text_render(Text* self) {
     if (!self || !self->texture) return;
+    if (Position_isNull(self->position)) {
+        error("Text position is not set.");
+        return;
+    }
+    TTF_SetFontStyle(self->style->font, self->style->style);
+
     float w, h;
     SDL_GetTextureSize(self->texture, &w, &h);
+    float x, y;
+    if (self->fromCenter) {
+        x = self->position->x - (w / 2);
+        y = self->position->y - (h / 2);
+    } else {
+        x = self->position->x;
+        y = self->position->y;
+    }
 
     SDL_FRect dst = { x, y, w, h };
     if (!SDL_RenderTexture(self->renderer, self->texture, NULL, &dst)) {

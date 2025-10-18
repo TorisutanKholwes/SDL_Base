@@ -1,0 +1,202 @@
+/*
+ * Copyright (c) 2025 Torisutan
+ * ALl rights reserved
+ */
+#include "style.h"
+
+#include "logger.h"
+#include "resource_manager.h"
+#include "utils.h"
+
+EdgeInsets* EdgeInsets_new(const float top, const float bottom, const float left, const float right) {
+    EdgeInsets* insets = calloc(1, sizeof(EdgeInsets));
+    if (!insets) {
+        error("Failed to allocate memory for EdgeInsets");
+        return NULL;
+    }
+    insets->top = top;
+    insets->bottom = bottom;
+    insets->left = left;
+    insets->right = right;
+    return insets;
+}
+
+void EdgeInsets_destroy(EdgeInsets* insets) {
+    if (!insets) return;
+    safe_free((void**)&insets);
+}
+
+TextStyle* TextStyle_new(TTF_Font* font, int size, Color* color, TTF_FontStyleFlags style, EdgeInsets* padding, EdgeInsets* margin) {
+    TextStyle* text_style = calloc(1, sizeof(TextStyle));
+    if (!text_style) {
+        error("Failed to allocate memory for TextStyle");
+        return NULL;
+    }
+    text_style->font = font;
+    text_style->size = size;
+    text_style->color = color;
+    text_style->style = style;
+    text_style->padding = padding;
+    text_style->margin = margin;
+    return text_style;
+}
+
+void TextStyle_destroy(TextStyle* style) {
+    if (!style) return;
+    safe_free((void**)&style->color);
+    EdgeInsets_destroy(style->padding);
+    EdgeInsets_destroy(style->margin);
+    safe_free((void**)&style);
+}
+
+TextStyle* TextStyle_default(ResourceManager* resource_manager) {
+    TextStyle* style = calloc(1, sizeof(TextStyle));
+    if (!style) {
+        error("Failed to allocate memory for default TextStyle");
+        return NULL;
+    }
+    style->size = 32;
+    style->font = ResourceManager_getDefaultFont(resource_manager, 32);
+    style->color = Color_rgb(255, 255, 255);
+    style->style = TTF_STYLE_NORMAL;
+    style->padding = EdgeInsets_zero();
+    style->margin = EdgeInsets_newAll(4);
+    return style;
+}
+
+TextStyle* TextStyle_defaultFromTheme(Theme* theme, ResourceManager* resource_manager) {
+    TextStyle* style = calloc(1, sizeof(TextStyle));
+    if (!style) {
+        error("Failed to allocate memory for default TextStyle from Theme");
+        return NULL;
+    }
+    style->size = 32;
+    style->font = ResourceManager_getDefaultFont(resource_manager, style->size);
+    style->color = theme->primary;
+    style->style = TTF_STYLE_NORMAL;
+    style->padding = EdgeInsets_zero();
+    style->margin = EdgeInsets_newAll(4);
+    return style;
+}
+
+ButtonStyleColors* ButtonStyleColors_new(Color* background, Color* border, Color* text) {
+    ButtonStyleColors* colors = calloc(1, sizeof(ButtonStyleColors));
+    if (!colors) {
+        error("Failed to allocate memory for ButtonStyleColors");
+        return NULL;
+    }
+    colors->background = background;
+    colors->border = border;
+    colors->text = text;
+    return colors;
+}
+
+void ButtonStyleColors_destroy(ButtonStyleColors* colors) {
+    if (!colors) return;
+    safe_free((void**)&colors->background);
+    safe_free((void**)&colors->border);
+    safe_free((void**)&colors->text);
+    safe_free((void**)&colors);
+}
+
+ButtonStyle* ButtonStyle_new(ButtonStyleColors* colors, int border_width, EdgeInsets* padding, EdgeInsets* margin, TTF_Font* text_font, TTF_FontStyleFlags text_style, int text_size) {
+    ButtonStyle* style = calloc(1, sizeof(ButtonStyle));
+    if (!style) {
+        error("Failed to allocate memory for ButtonStyle");
+        return NULL;
+    }
+    style->colors = colors;
+    style->border_width = border_width;
+    style->padding = padding;
+    style->margin = margin;
+    style->text_font = text_font;
+    style->text_style = text_style;
+    style->text_size = text_size;
+    return style;
+}
+
+void ButtonStyle_destroy(ButtonStyle* style) {
+    if (!style) return;
+    ButtonStyleColors_destroy(style->colors);
+    EdgeInsets_destroy(style->padding);
+    EdgeInsets_destroy(style->margin);
+    safe_free((void**)&style);
+}
+
+ButtonStyle* ButtonStyle_default(ResourceManager* resource_manager) {
+    ButtonStyle* style = calloc(1, sizeof(ButtonStyle));
+    if (!style) {
+        error("Failed to allocate memory for default ButtonStyle");
+        return NULL;
+    }
+    style->border_width = 2;
+    style->padding = EdgeInsets_zero();
+    style->margin = EdgeInsets_newAll(4);
+    style->text_size = 24;
+    style->text_font = ResourceManager_getDefaultFont(resource_manager, style->text_size);
+    style->text_style = TTF_STYLE_NORMAL;
+    style->colors = ButtonStyleColors_new(
+        Color_rgb(220, 220, 220),
+        Color_rgb(100, 100, 100),
+        Color_rgb(0, 0, 0));
+    return style;
+}
+
+ButtonStyle* ButtonStyle_defaultFromTheme(Theme* theme, ResourceManager* resource_manager) {
+    ButtonStyle* style = calloc(1, sizeof(ButtonStyle));
+    if (!style) {
+        error("Failed to allocate memory for default ButtonStyle from Theme");
+        return NULL;
+    }
+    style->border_width = 2;
+    style->padding = EdgeInsets_zero();
+    style->margin = EdgeInsets_newAll(4);
+    style->text_size = 32;
+    style->text_font = ResourceManager_getDefaultFont(resource_manager, style->text_size);
+    style->text_style = TTF_STYLE_NORMAL;
+    style->colors = ButtonStyleColors_new(
+        theme->secondary,
+        theme->primary,
+        theme->background);
+    return style;
+}
+
+Theme* Theme_new(Color* background, Color* primary, Color* secondary, TextStyle* title_style, TextStyle* body_style, ButtonStyle* button_style) {
+    Theme* theme = calloc(1, sizeof(Theme));
+    if (!theme) {
+        error("Failed to allocate memory for Theme");
+        return NULL;
+    }
+    theme->background = background;
+    theme->primary = primary;
+    theme->secondary = secondary;
+    theme->title_style = title_style;
+    theme->body_style = body_style;
+    theme->button_style = button_style;
+    return theme;
+}
+
+void Theme_destroy(Theme* theme) {
+    if (!theme) return;
+    safe_free((void**)&theme->background);
+    safe_free((void**)&theme->primary);
+    safe_free((void**)&theme->secondary);
+    TextStyle_destroy(theme->title_style);
+    TextStyle_destroy(theme->body_style);
+    ButtonStyle_destroy(theme->button_style);
+    safe_free((void**)&theme);
+}
+Theme* Theme_default(ResourceManager* resource_manager) {
+    Theme* theme = calloc(1, sizeof(Theme));
+    if (!theme) {
+        error("Failed to allocate memory for default Theme");
+        return NULL;
+    }
+    theme->background = Color_rgb(30, 144, 255);
+    theme->primary = Color_rgb(255, 255, 255);
+    theme->secondary = Color_rgb(200, 200, 200);
+    theme->title_style = TextStyle_new(ResourceManager_getDefaultBoldFont(resource_manager, 48), 48, Color_rgb(255, 255, 255), TTF_STYLE_UNDERLINE, EdgeInsets_zero(), EdgeInsets_newAll(8));
+    theme->body_style = TextStyle_default(resource_manager);
+    theme->button_style = ButtonStyle_default(resource_manager);
+    return theme;
+}
