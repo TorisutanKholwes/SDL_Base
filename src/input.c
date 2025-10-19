@@ -95,14 +95,14 @@ void Input_update(Input* input) {
             case SDL_EVENT_KEY_UP:
                 code = evt.key.key;
                 List_remove(input->keysDown, (void*)code);
-                if (code == SDL_SCANCODE_LSHIFT || code == SDL_SCANCODE_RSHIFT) {
+                if (code == SDLK_LSHIFT || code == SDLK_RSHIFT) {
                     input->shift = false;
-                } else if (code == SDL_SCANCODE_LCTRL || code == SDL_SCANCODE_RCTRL) {
+                } else if (code == SDLK_LCTRL || code == SDLK_RCTRL) {
                     input->ctrl = false;
-                } else if (code == SDL_SCANCODE_LALT || code == SDL_SCANCODE_RALT) {
+                } else if (code == SDLK_LALT || code == SDLK_RALT) {
                     input->alt = false;
                 }
-                if (code == SDL_SCANCODE_ESCAPE) {
+                if (code == SDLK_ESCAPE) {
                     input->esc = false;
                 }
             case SDL_EVENT_MOUSE_BUTTON_DOWN:
