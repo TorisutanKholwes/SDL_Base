@@ -8,6 +8,8 @@
 #include "logger.h"
 #include "utils.h"
 #include "input.h"
+#include "main_frame.h"
+#include "other_frame.h"
 #include "style.h"
 
 #if 1
@@ -63,6 +65,11 @@ int main() {
 
     app->theme = Theme_default(app->manager);
 
+    MainFrame* mainFrame = MainFrame_new(app);
+    //OtherFrame* otherFrame = OtherFrame_new(app);
+    App_addFrame(app, Frame_new(mainFrame, MainFrame_render, MainFrame_update, MainFrame_focus, MainFrame_unfocus));
+    //App_addFrame(app, Frame_new(otherFrame, OtherFrame_render, OtherFrame_update, OtherFrame_focus, OtherFrame_unfocus));
+
     while (app->running) {
         Input_update(app->input);
 
@@ -85,6 +92,8 @@ int main() {
 
         SDL_Delay(16); // Roughly 60 FPS
     }
+
+    MainFrame_destroy(mainFrame);
 
     App_quit(app);
     App_destroy(app);
