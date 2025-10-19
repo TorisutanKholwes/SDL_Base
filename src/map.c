@@ -151,7 +151,7 @@ char* Map_toString(Map* map, const char* keyFormat, const char* valueFormat, voi
     return result;
 }
 
-MapIterator* Map_iterator(Map* map) {
+MapIterator* MapIterator_new(Map* map) {
     MapIterator* iterator = calloc(1, sizeof(MapIterator));
     if (!iterator) {
         error("Failed to allocate memory for MapIterator");

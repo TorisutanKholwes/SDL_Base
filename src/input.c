@@ -50,20 +50,6 @@ void Input_destroy(Input* input) {
 }
 
 void Input_update(Input* input) {
-    /*List_clear(input->keysDown);
-    Map_clear(input->eventHandlers);
-    input->lastPressed = SDL_SCANCODE_UNKNOWN;
-    input->mouse_left = false;
-    input->mouse_right = false;
-    input->shift = false;
-    input->ctrl = false;
-    input->alt = false;
-    input->esc = false;
-    input->quit = false;
-    if (input->mousePos)
-        Position_destroy(input->mousePos);
-    input->mousePos = NULL;*/
-
     SDL_Event evt;
     SDL_Scancode code;
     while (SDL_PollEvent(&evt)) {
@@ -139,7 +125,7 @@ bool Input_keyDown(Input* input, SDL_Scancode key) {
     return List_contains(input->keysDown, (void*)key);
 }
 
-bool Input_mouseInRect(Input* input, SDL_Rect rect) {
+bool Input_mouseInRect(Input* input, SDL_FRect rect) {
     if (!input) return false;
     Position* mouse = input->mousePos;
     if (!mouse) {
@@ -176,6 +162,27 @@ void Input_removeKeyEventHandler(Input* input, SDL_Scancode key) {
     Map_remove(input->keyEventHandlers, (void*)key);
 }
 
+void Input_removeOneKeyEventHandler(Input* input, SDL_Scancode key, void* data) {
+    if (!input || !data) return;
+
+    if (!Map_containsKey(input->keyEventHandlers, (void*)key)) {
+        return;
+    }
+
+    List* handlers = Map_get(input->keyEventHandlers, (void*)key);
+    ListIterator* it = ListIterator_new(handlers);
+    while (ListIterator_hasNext(it)) {
+        EventHandler* handler = ListIterator_next(it);
+        if (handler && handler->data == data) {
+            List_remove(handlers, (void*)handler);
+            break;
+        }
+    }
+    if (List_size(handlers) == 0) {
+        Map_remove(input->keyEventHandlers, (void*)key);
+    }
+}
+
 void Input_clearKeyEventHandlers(Input* input) {
     if (!input) return;
     Map_clear(input->keyEventHandlers);
@@ -204,6 +211,28 @@ void Input_removeEventHandler(Input* input, Uint32 eventType) {
     if (!input) return;
     Map_remove(input->eventHandlers, (void*)eventType);
 }
+
+void Input_removeOneEventHandler(Input* input, Uint32 eventType, void* data) {
+    if (!input || !data) return;
+
+    if (!Map_containsKey(input->eventHandlers, (void*)eventType)) {
+        return;
+    }
+
+    List* handlers = Map_get(input->eventHandlers, (void*)eventType);
+    ListIterator* it = ListIterator_new(handlers);
+    while (ListIterator_hasNext(it)) {
+        EventHandler* handler = ListIterator_next(it);
+        if (handler && handler->data == data) {
+            List_remove(handlers, (void*)handler);
+            break;
+        }
+    }
+    if (List_size(handlers) == 0) {
+        Map_remove(input->eventHandlers, (void*)eventType);
+    }
+}
+
 
 void Input_clearEventHandlers(Input* input) {
     if (!input) return;
