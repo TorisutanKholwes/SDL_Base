@@ -52,7 +52,7 @@ typedef struct Timer Timer;
 
 // Frames
 typedef struct MainFrame MainFrame;
-typedef struct OtherFrame OtherFrame;
+typedef struct SecondFrame SecondFrame;
 
 // Structure who's not used as a pointer elsewhere
 typedef struct {

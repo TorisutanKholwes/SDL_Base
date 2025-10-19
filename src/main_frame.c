@@ -8,11 +8,13 @@
 #include "button.h"
 #include "color.h"
 #include "element.h"
+#include "frame.h"
 #include "geometry.h"
 #include "input.h"
 #include "logger.h"
 #include "list.h"
 #include "resource_manager.h"
+#include "second_frame.h"
 #include "style.h"
 #include "utils.h"
 #include "text.h"
@@ -112,7 +114,12 @@ void MainFrame_unfocus(Frame* _, void* data) {
 }
 
 static void MainFrame_goToNextPage(Input* input, SDL_Event* evt, void* data) {
-    log_message(LOG_LEVEL_DEBUG, "TODO : Go to next page");
+    Button* button = data;
+    if (button && button->parent) {
+        MainFrame* self = button->parent;
+        SecondFrame* second = SecondFrame_new(self->app);
+        App_addFrame(self->app, Frame_new(second, SecondFrame_render, SecondFrame_update, SecondFrame_focus, SecondFrame_unfocus));
+    }
 }
 
 static void MainFrame_onWindowResized(Input* input, SDL_Event* evt, void* data) {
