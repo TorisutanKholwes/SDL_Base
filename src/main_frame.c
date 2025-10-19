@@ -6,18 +6,18 @@
 
 #include "app.h"
 #include "button.h"
+#include "color.h"
 #include "element.h"
 #include "geometry.h"
 #include "logger.h"
 #include "list.h"
-#include "other_frame.h"
+#include "resource_manager.h"
 #include "style.h"
-#include "text.h"
 #include "utils.h"
-#include "frame.h"
+#include "text.h"
 
 static void MainFrame_addElements(MainFrame* self, App* app);
-static void MainFrame_startAnimation(Input* input, SDL_Event* evt, void* data);
+static void MainFrame_goToNextPage(Input* input, SDL_Event* evt, void* data);
 
 MainFrame* MainFrame_new(App* app) {
     MainFrame* self = calloc(1, sizeof(MainFrame));
@@ -39,40 +39,42 @@ MainFrame* MainFrame_new(App* app) {
 }
 
 static void MainFrame_addElements(MainFrame* self, App* app) {
-    Text* t = Text_new(
-        app->renderer,
-        "Hello World !",
-        TextStyle_default(app->manager),
-        Position_new(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2), true);
-    Text_setColor(t, Color_rgb(0, 0, 0));
-    List_push(self->elements, Element_fromText(t, NULL));
+    int w, h;
+    SDL_GetWindowSize(app->window, &w, &h);
 
-    Box* box = Box_new(100.f, 100.f, 0, Position_new(WINDOW_WIDTH / 2 + 200, WINDOW_HEIGHT / 2 + 150), Color_rgb(0, 0, 255), NULL);
-    List_push(self->elements, Element_fromBox(box, NULL));
+    Text* title = Text_newf(app->renderer,
+        TextStyle_new(ResourceManager_getDefaultBoldFont(app->manager, 40),
+            40,
+            COLOR_WHITE,
+            TTF_STYLE_NORMAL),
+            Position_new(w / 2, 100), true,
+            "Welcome to %s!", APP_NAME);
+    List_push(self->elements, Element_fromText(title, NULL));
 
-    Circle* circle = Circle_new(50, 0, Position_new(75, 75), Color_rgb(255, 0, 0), NULL);
-    List_push(self->elements, Element_fromCircle(circle, NULL));
+    Polygon* octagon = Polygon_newEmpty(0, COLOR_YELLOW, NULL);
+    for (int i = 0; i < 8; i++) {
+        int octagon_size = 100;
+        Polygon_addVertex(octagon,
+                          Position_new(
+                              w / 2 + octagon_size * cos(i * M_PI / 4),
+                              h / 2 + octagon_size * sin(i * M_PI / 4)
+                          )
+        );
+    }
+    List_push(self->elements, Element_fromPolygon(octagon, NULL));
 
-    Polygon* triangle = Polygon_newEmpty(Color_rgb(0, 255, 0));
-    Polygon_addVertex(triangle, Position_new(200, 200));
-    Polygon_addVertex(triangle, Position_new(250, 300));
-    Polygon_addVertex(triangle, Position_new(150, 300));
-    List_push(self->elements, Element_fromPolygon(triangle, NULL));
-
-    Polygon* diamond = Polygon_newEmpty(Color_rgb(255, 255, 0));
-    Polygon_addVertex(diamond, Position_new(400, 50));
-    Polygon_addVertex(diamond, Position_new(450, 100));
-    Polygon_addVertex(diamond, Position_new(400, 150));
-    Polygon_addVertex(diamond, Position_new(350, 100));
-    List_push(self->elements, Element_fromPolygon(diamond, NULL));
-
-    Button* button = Button_new(
-        app,
-        "Test animation",
-        SDL_CreateRect(WINDOW_WIDTH / 2 - 75, WINDOW_HEIGHT / 2 + 200, 250, 50),
-        ButtonStyle_default(app->manager), self);
+    Button* button = Button_new(app,
+        Position_new(w / 2, h / 2 + 200),
+        ButtonStyle_new(FullStyleColors_new(COLOR_WHITE, COLOR_GRAY(150), COLOR_BLACK),
+            2,
+            ResourceManager_getDefaultFont(app->manager, 24),
+            TTF_STYLE_NORMAL,
+            24,
+            EdgeInsets_newSymmetric(10, 20)),
+        self,
+        "Go to next page");
+    Button_onClick(button, MainFrame_goToNextPage);
     List_push(self->elements, Element_fromButton(button, NULL));
-    Button_onClick(button, MainFrame_startAnimation);
 }
 
 void MainFrame_destroy(MainFrame* self) {
@@ -105,14 +107,6 @@ void MainFrame_unfocus(Frame* _, void* data) {
     Element_unfocusList(self->elements);
 }
 
-static void MainFrame_startAnimation(Input* _, SDL_Event* __, void* data) {
-    Button* button = data;
-    if (button->parent) {
-        MainFrame* self = button->parent;
-        OtherFrame* otherFrame = OtherFrame_new(self->app);
-        if (otherFrame) {
-            App_addFrame(self->app, Frame_new(otherFrame,
-            OtherFrame_render, OtherFrame_update, OtherFrame_focus, OtherFrame_unfocus));
-        }
-    }
+static void MainFrame_goToNextPage(Input* input, SDL_Event* evt, void* data) {
+    log_message(LOG_LEVEL_DEBUG, "TODO : Go to next page");
 }

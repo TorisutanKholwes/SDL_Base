@@ -9,7 +9,6 @@
 #include "utils.h"
 #include "input.h"
 #include "main_frame.h"
-#include "other_frame.h"
 #include "style.h"
 
 #if 1
@@ -66,9 +65,7 @@ int main() {
     app->theme = Theme_default(app->manager);
 
     MainFrame* mainFrame = MainFrame_new(app);
-    //OtherFrame* otherFrame = OtherFrame_new(app);
     App_addFrame(app, Frame_new(mainFrame, MainFrame_render, MainFrame_update, MainFrame_focus, MainFrame_unfocus));
-    //App_addFrame(app, Frame_new(otherFrame, OtherFrame_render, OtherFrame_update, OtherFrame_focus, OtherFrame_unfocus));
 
     while (app->running) {
         Input_update(app->input);
@@ -79,7 +76,8 @@ int main() {
 
         SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 
-        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+        Color* background = app->theme->background;
+        SDL_SetRenderDrawColor(renderer, background->r, background->g, background->b, background->a);
         SDL_RenderClear(renderer);
 
         Frame* frame = App_getCurrentFrame(app);
@@ -104,7 +102,6 @@ int main() {
 
 #if 0
 int main() {
-    list_dir(FONT_PATH);
 }
 #endif
 
