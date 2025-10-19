@@ -31,6 +31,10 @@ void safe_free(void** ptr);
 int init();
 SDL_FRect SDL_CreateRect(float x, float y, float w, float h);
 void SDL_RenderStroke(SDL_Renderer* renderer, const SDL_FRect* rect, float thickness);
+
 char* Strdup(const char* str);
 bool String_isNullOrEmpty(const char* str);
 bool String_equals(const char* a, const char* b);
+int String_parseInt(const char* str, int defaultValue);
+float String_parseFloat(const char* str, float defaultValue);
+bool String_isNumeric(const char* str);

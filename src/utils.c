@@ -58,8 +58,8 @@ SDL_FRect SDL_CreateRect(const float x, const float y, const float w, const floa
     SDL_FRect rect = { 0 };
     rect.w = w;
     rect.h = h;
-    rect.x = x - (w / 2);
-    rect.y = y - (h / 2);
+    rect.x = fmaxf(0, x - (w / 2));
+    rect.y = fmaxf(0, y - (h / 2));
 
     return rect;
 }
@@ -155,4 +155,37 @@ bool String_equals(const char* a, const char* b) {
     if (!a && !b) return true;
     if (!a || !b) return false;
     return strcmp(a, b) == 0;
+}
+
+int String_parseInt(const char* str, int defaultValue) {
+    if (String_isNullOrEmpty(str)) {
+        return defaultValue;
+    }
+    char* endPtr;
+    long value = strtol(str, &endPtr, 10);
+    if (endPtr == str) {
+        return defaultValue;
+    }
+    return (int)value;
+}
+
+float String_parseFloat(const char* str, float defaultValue) {
+    if (String_isNullOrEmpty(str)) {
+        return defaultValue;
+    }
+    char* endPtr;
+    float value = strtof(str, &endPtr);
+    if (endPtr == str) {
+        return defaultValue;
+    }
+    return value;
+}
+
+bool String_isNumeric(const char* str) {
+    if (String_isNullOrEmpty(str)) {
+        return false;
+    }
+    char* endPtr;
+    strtof(str, &endPtr);
+    return endPtr != str && *endPtr == '\0';
 }
