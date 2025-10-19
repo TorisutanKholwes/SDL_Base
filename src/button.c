@@ -14,7 +14,7 @@
 static void Button_checkHover(Input* input, SDL_Event* evt, void* buttonData);
 static void Button_checkPressed(Input* input, SDL_Event* evt, void* buttonData);
 
-Button* Button_new(const App* app, const char* label, SDL_FRect rect, ButtonStyle* style) {
+Button* Button_new(const App* app, const char* label, SDL_FRect rect, ButtonStyle* style, void* parent) {
     Button* button = calloc(1, sizeof(Button));
     if (!button) {
         error("Failed to allocate memory for Button");
@@ -33,10 +33,9 @@ Button* Button_new(const App* app, const char* label, SDL_FRect rect, ButtonStyl
     button->input = app->input;
     button->hovered = false;
     button->pressed = false;
+    button->focused = false;
+    button->parent = parent;
 
-    Input_addEventHandler(button->input, SDL_EVENT_MOUSE_MOTION, Button_checkHover, button);
-    Input_addEventHandler(button->input, SDL_EVENT_MOUSE_BUTTON_DOWN, Button_checkPressed, button);
-    Input_addEventHandler(button->input, SDL_EVENT_MOUSE_BUTTON_UP, Button_checkPressed, button);
     return button;
 }
 
@@ -67,7 +66,25 @@ void Button_render(Button* button, SDL_Renderer* renderer) {
 }
 
 void Button_update(Button* button) {
+    if (!button->focused) {
+        Button_focus(button);
+    }
+}
 
+void Button_unFocus(Button* button) {
+    //log_message(LOG_LEVEL_DEBUG, "Button %s unfocused", button->text->text);
+    button->focused = false;
+    Input_removeOneEventHandler(button->input, SDL_EVENT_MOUSE_MOTION, button);
+    Input_removeOneEventHandler(button->input, SDL_EVENT_MOUSE_BUTTON_DOWN, button);
+    Input_removeOneEventHandler(button->input, SDL_EVENT_MOUSE_BUTTON_UP, button);
+}
+
+void Button_focus(Button* button) {
+    //log_message(LOG_LEVEL_DEBUG, "Button %s focused", button->text->text);
+    button->focused = true;
+    Input_addEventHandler(button->input, SDL_EVENT_MOUSE_MOTION, Button_checkHover, button);
+    Input_addEventHandler(button->input, SDL_EVENT_MOUSE_BUTTON_DOWN, Button_checkPressed, button);
+    Input_addEventHandler(button->input, SDL_EVENT_MOUSE_BUTTON_UP, Button_checkPressed, button);
 }
 
 void Button_setString(Button* button, const char* str) {
@@ -85,22 +102,26 @@ void Button_setStringf(Button* button, const char* format, ...) {
     Text_setString(button->text, buffer);
 }
 
+void Button_setParent(Button* button, void* parent) {
+    if (!button) return;
+    button->parent = parent;
+}
+
 static void Button_checkHover(Input* input, SDL_Event* evt, void* buttonData) {
     Button* button = buttonData;
-    bool isHovering = Input_mouseInRect(input, (SDL_Rect){
+    bool isHovering = Input_mouseInRect(input, (SDL_FRect){
         .x = (int)button->rect.x,
         .y = (int)button->rect.y,
         .w = (int)button->rect.w,
         .h = (int)button->rect.h
     });
     if (isHovering && !button->hovered) {
-        log_message(LOG_LEVEL_DEBUG, "Button %s hovered", button->text->text);
+        //log_message(LOG_LEVEL_DEBUG, "Button hovered");
         button->hovered = true;
         if (button->onHover) {
             button->onHover(input, evt, buttonData);
         }
     } else if (!isHovering && button->hovered) {
-        log_message(LOG_LEVEL_DEBUG, "Button %s unhovered", button->text->text);
         button->hovered = false;
         if (button->onHoverEnd) {
             button->onHoverEnd(input, evt, buttonData);
@@ -110,20 +131,18 @@ static void Button_checkHover(Input* input, SDL_Event* evt, void* buttonData) {
 
 static void Button_checkPressed(Input* input, SDL_Event* evt, void* buttonData) {
     Button* button = buttonData;
-    bool isHovering = Input_mouseInRect(input, (SDL_Rect){
+    bool isHovering = Input_mouseInRect(input, (SDL_FRect){
         .x = (int)button->rect.x,
         .y = (int)button->rect.y,
         .w = (int)button->rect.w,
         .h = (int)button->rect.h
     });
     if (isHovering && evt->type == SDL_EVENT_MOUSE_BUTTON_DOWN) {
-        log_message(LOG_LEVEL_DEBUG, "Mouse button %s down", button->text->text);
         button->pressed = true;
         if (button->onClick) {
             button->onClick(input, evt, buttonData);
         }
     } else if (isHovering && evt->type == SDL_EVENT_MOUSE_BUTTON_UP) {
-        log_message(LOG_LEVEL_DEBUG, "Mouse button %s up", button->text->text);
         button->pressed = false;
     } else {
         button->pressed = false;

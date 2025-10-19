@@ -4,6 +4,7 @@
  */
 #include "app.h"
 
+#include "frame.h"
 #include "logger.h"
 #include "utils.h"
 #include "input.h"
@@ -60,6 +61,30 @@ void App_quit(const App *app) {
     if (app->renderer)
         SDL_DestroyRenderer(app->renderer);
     SDL_Quit();
+}
+
+void App_addFrame(const App* app, Frame* frame) {
+    if (List_size(app->stack) > 0) {
+        Frame* curr = App_getCurrentFrame(app);
+        if (curr && curr->func_unfocus) {
+            curr->func_unfocus(curr, curr->element);
+        }
+    }
+    List_push(app->stack, frame);
+    if (frame->func_focus) {
+        frame->func_focus(frame, frame->element);
+    }
+}
+
+void App_frameBack(const App* app) {
+    Frame* frame = List_popLast(app->stack);
+    if (frame->func_unfocus) {
+        frame->func_unfocus(frame, frame->element);
+    }
+    Frame* curr = App_getCurrentFrame(app);
+    if (curr && curr->func_focus) {
+        curr->func_focus(curr, curr->element);
+    }
 }
 
 Frame* App_getCurrentFrame(const App* app) {

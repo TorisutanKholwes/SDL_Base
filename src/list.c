@@ -192,6 +192,7 @@ ListIterator *ListIterator_new(List *list) {
     iterator->head = list->head;
     iterator->current = list->head->next;
     iterator->index = 0;
+    iterator->size = list->size;
     return iterator;
 }
 
@@ -201,12 +202,17 @@ void ListIterator_destroy(ListIterator *iterator) {
 }
 
 bool ListIterator_hasNext(ListIterator *iterator) {
-    return iterator->current != iterator->head;
+    return iterator->current != iterator->head && iterator->size > 0;
 }
 
 void *ListIterator_next(ListIterator *iterator) {
     if (!ListIterator_hasNext(iterator)) {
         error("No more elements in ListIterator");
+        return NULL;
+    }
+    if (!iterator->current || !iterator->current->value) {
+        //error("Current node is NULL in ListIterator");
+        iterator->current = iterator->head;
         return NULL;
     }
     void *value = iterator->current->value;

@@ -23,6 +23,7 @@ struct ListIterator {
     ListNode* head;
     ListNode* current;
     int index;
+    size_t size;
 };
 
 List* List_create();

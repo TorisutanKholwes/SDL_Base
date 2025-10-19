@@ -37,7 +37,7 @@ size_t Map_size(Map* map);
 bool Map_isEmpty(Map* map);
 char* Map_toString(Map* map, const char* keyFormat, const char* valueFormat, void* (*formatKeyFunc)(void* key), void* (*formatValueFunc)(void* value));
 
-MapIterator* Map_iterator(Map* map);
+MapIterator* MapIterator_new(Map* map);
 void MapIterator_destroy(MapIterator* iterator);
 bool MapIterator_hasNext(MapIterator* iterator);
 void MapIterator_next(MapIterator* iterator);

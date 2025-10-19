@@ -20,18 +20,24 @@ struct Button {
 
     bool hovered;
     bool pressed;
+    bool focused;
+
+    void* parent;
 
     EventHandlerFunc onClick;
     EventHandlerFunc onHover;
     EventHandlerFunc onHoverEnd;
 };
 
-Button* Button_new(const App* app, const char* label, SDL_FRect rect, ButtonStyle* style);
+Button* Button_new(const App* app, const char* label, SDL_FRect rect, ButtonStyle* style, void* parent);
 void Button_destroy(Button* button);
 void Button_render(Button* button, SDL_Renderer* renderer);
 void Button_setString(Button* button, const char* str);
 void Button_setStringf(Button* button, const char* format, ...);
+void Button_setParent(Button* button, void* parent);
 void Button_update(Button* button);
+void Button_unFocus(Button* button);
+void Button_focus(Button* button);
 void Button_onClick(Button* button, EventHandlerFunc func);
 void Button_onHover(Button* button, EventHandlerFunc func);
 void Button_onHoverEnd(Button* button, EventHandlerFunc func);
