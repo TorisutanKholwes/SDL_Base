@@ -14,6 +14,7 @@ typedef struct EventHandler EventHandler;
 typedef struct ListNode ListNode;
 typedef struct List List;
 typedef struct ListIterator ListIterator;
+typedef enum ListSortType ListSortType;
 
 typedef enum LogLevel LogLevel;
 

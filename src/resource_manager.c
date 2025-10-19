@@ -16,9 +16,9 @@ ResourceManager* ResourceManager_create(SDL_Renderer* renderer, MIX_Mixer* mixer
     }
     self->renderer = renderer;
     self->mixer = mixer;
-    self->texturesCache = Map_create();
-    self->fontsCache = Map_create();
-    self->soundsCache = Map_create();
+    self->texturesCache = Map_create(true);
+    self->fontsCache = Map_create(true);
+    self->soundsCache = Map_create(true);
     return self;
 }
 
@@ -54,7 +54,10 @@ TTF_Font* ResourceManager_getFont(ResourceManager* self, const char* filename, i
     if (!self || !self->fontsCache || !filename) return NULL;
 
     if (Map_containsKey(self->fontsCache, (void*)filename)) {
-        return Map_get(self->fontsCache, (void*)filename);
+        Map* sizeMap = Map_get(self->fontsCache, (void*)filename);
+        if (Map_containsKey(sizeMap, (void*)(long)size)) {
+            return Map_get(sizeMap, (void*)(long)size);
+        }
     }
 
     char* path = malloc(strlen(FONT_PATH) + strlen(filename) + 1);
@@ -65,7 +68,15 @@ TTF_Font* ResourceManager_getFont(ResourceManager* self, const char* filename, i
         safe_free((void**)&path);
         return NULL;
     }
-    Map_put(self->fontsCache, Strdup(filename), font);
+
+    if (Map_containsKey(self->fontsCache, (void*)filename)) {
+        Map* existingFont = Map_get(self->fontsCache, (void*)filename);
+        Map_put(existingFont, (void*)(long)size, font);
+    } else {
+        Map* sizeMap = Map_create(false);
+        Map_put(sizeMap, (void*)(long)size, font);
+        Map_put(self->fontsCache, Strdup(filename), sizeMap);
+    }
     safe_free((void**)&path);
     return font;
 }

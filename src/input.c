@@ -21,14 +21,14 @@ Input* Input_create() {
         safe_free((void**)&input);
         return NULL;
     }
-    input->eventHandlers = Map_create();
+    input->eventHandlers = Map_create(false);
     if (!input->eventHandlers) {
         error("Failed to create eventHandlers map");
         List_destroy(input->keysDown);
         safe_free((void**)&input);
         return NULL;
     }
-    input->keyEventHandlers = Map_create();
+    input->keyEventHandlers = Map_create(false);
     if (!input->keyEventHandlers) {
         error("Failed to create keyEventHandlers map");
         List_destroy(input->keysDown);
@@ -69,7 +69,7 @@ void Input_update(Input* input) {
                 break;
             case SDL_EVENT_KEY_DOWN:
                 if (input->keyEventHandlers && Map_containsKey(input->keyEventHandlers, (void*)evt.key.key)) {
-                    List* handlers = Map_get(input->keyEventHandlers, (void*)evt.type);
+                    List* handlers = Map_get(input->keyEventHandlers, (void*)evt.key.key);
                     ListIterator* it = ListIterator_new(handlers);
                     while (ListIterator_hasNext(it)) {
                         const EventHandler* handler = ListIterator_next(it);
@@ -122,7 +122,7 @@ void Input_update(Input* input) {
 }
 
 bool Input_keyDown(Input* input, SDL_Scancode key) {
-    return List_contains(input->keysDown, (void*)key);
+    return List_contains(input->keysDown, (void*)key, false);
 }
 
 bool Input_mouseInRect(Input* input, SDL_FRect rect) {
