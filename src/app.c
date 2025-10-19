@@ -10,6 +10,7 @@
 #include "input.h"
 #include "list.h"
 #include "resource_manager.h"
+#include "style.h"
 
 App* App_create(SDL_Window* window, SDL_Renderer* renderer, SDL_AudioSpec* audioSpec) {
     App* app = calloc(1, sizeof(App));
@@ -50,6 +51,7 @@ void App_destroy(App* app) {
     Input_destroy(app->input);
     List_destroy(app->stack);
     ResourceManager_destroy(app->manager);
+    Theme_destroy(app->theme);
     safe_free((void**)&app);
 }
 

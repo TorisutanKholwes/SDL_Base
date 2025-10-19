@@ -16,7 +16,8 @@ struct Text {
     bool fromCenter;
 };
 
-Text* Text_new(SDL_Renderer* renderer, const char* str, TextStyle* style, Position* position, bool fromCenter);
+Text* Text_new(SDL_Renderer* renderer, TextStyle* style, Position* position, bool fromCenter, const char* str);
+Text* Text_newf(SDL_Renderer* renderer, TextStyle* style, Position* position, bool fromCenter, const char* format, ...);
 void Text_destroy(Text* self);
 void Text_setString(Text* self, const char* str);
 void Text_setStringf(Text* self, const char* format, ...);

@@ -10,7 +10,7 @@
 
 void refreshTexture(Text* self);
 
-Text* Text_new(SDL_Renderer* renderer, const char* str, TextStyle* style, Position* position, bool fromCenter) {
+Text* Text_new(SDL_Renderer* renderer, TextStyle* style, Position* position, bool fromCenter, const char* str) {
     Text* text = calloc(1, sizeof(Text));
     if (!text) {
         error("Failed to allocate memory for Text");
@@ -22,6 +22,33 @@ Text* Text_new(SDL_Renderer* renderer, const char* str, TextStyle* style, Positi
     text->position = position;
     text->fromCenter = fromCenter;
     text->texture = NULL;
+
+    refreshTexture(text);
+
+    return text;
+}
+
+Text* Text_newf(SDL_Renderer* renderer, TextStyle* style, Position* position, bool fromCenter, const char* format, ...) {
+    Text* text = calloc(1, sizeof(Text));
+    if (!text) {
+        error("Failed to allocate memory for Text");
+        return NULL;
+    }
+    text->renderer = renderer;
+    text->style = style;
+    text->position = position;
+    text->fromCenter = fromCenter;
+    text->texture = NULL;
+    if (format) {
+        va_list args;
+        va_start(args, format);
+        char buffer[1024];
+        vsnprintf(buffer, sizeof(buffer), format, args);
+        va_end(args);
+        text->text = Strdup(buffer);
+    } else {
+        text->text = Strdup("");
+    }
 
     refreshTexture(text);
 
@@ -88,6 +115,7 @@ void refreshTexture(Text* self) {
         // Avoid creating an empty texture
         text = " ";
     }
+    TTF_SetFontStyle(self->style->font, self->style->style);
 
     SDL_Surface *surface = TTF_RenderText_Blended(self->style->font, text, strlen(text), Color_toSDLColor(self->style->color));
     if (!surface) {
@@ -111,7 +139,6 @@ void Text_render(Text* self) {
         error("Text position is not set.");
         return;
     }
-    TTF_SetFontStyle(self->style->font, self->style->style);
 
     float w, h;
     SDL_GetTextureSize(self->texture, &w, &h);
