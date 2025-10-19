@@ -83,6 +83,7 @@ void App_frameBack(const App* app) {
     if (frame->func_unfocus) {
         frame->func_unfocus(frame, frame->element);
     }
+    //Frame_destroy(frame);
     Frame* curr = App_getCurrentFrame(app);
     if (curr && curr->func_focus) {
         curr->func_focus(curr, curr->element);

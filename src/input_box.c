@@ -156,11 +156,11 @@ static void InputBox_checkMouseClick(Input* input, SDL_Event* event, void* data)
         return;
     }
     if (Input_mouseInRect(input, self->rect)) {
-        log_message(LOG_LEVEL_DEBUG, "Input now selected");
+        //log_message(LOG_LEVEL_DEBUG, "Input now selected");
         self->selected = true;
         SDL_StartTextInput(self->app->window);
     } else if (self->selected) {
-        log_message(LOG_LEVEL_DEBUG, "Input now unselected");
+        //log_message(LOG_LEVEL_DEBUG, "Input now unselected");
         self->selected = false;
         SDL_StopTextInput(self->app->window);
     }
