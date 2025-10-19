@@ -43,10 +43,11 @@ void List_destroyWitValues(List* list, void (*destroyValueFunc)(void* value)) {
 }
 
 void List_clear(List *list) {
-    ListNode *node = list->head;
-    while (node) {
+    ListNode *node = list->head->next;
+    while (node != list->head) {
         ListNode *next = node->next;
-        safe_free((void **) &next);
+        if (node == list->head && next == list->head) break;
+        safe_free((void **) &node);
         node = next;
     }
     list->size = 0;

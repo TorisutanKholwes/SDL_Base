@@ -9,6 +9,7 @@
 #include "color.h"
 #include "element.h"
 #include "geometry.h"
+#include "input.h"
 #include "logger.h"
 #include "list.h"
 #include "resource_manager.h"
@@ -18,6 +19,7 @@
 
 static void MainFrame_addElements(MainFrame* self, App* app);
 static void MainFrame_goToNextPage(Input* input, SDL_Event* evt, void* data);
+static void MainFrame_onWindowResized(Input* input, SDL_Event* evt, void* data);
 
 MainFrame* MainFrame_new(App* app) {
     MainFrame* self = calloc(1, sizeof(MainFrame));
@@ -34,11 +36,13 @@ MainFrame* MainFrame_new(App* app) {
         return NULL;
     }
     MainFrame_addElements(self, app);
+    Input_addEventHandler(app->input, SDL_EVENT_WINDOW_RESIZED, MainFrame_onWindowResized, self);
 
     return self;
 }
 
 static void MainFrame_addElements(MainFrame* self, App* app) {
+    List_clear(self->elements);
     int w, h;
     SDL_GetWindowSize(app->window, &w, &h);
 
@@ -109,4 +113,9 @@ void MainFrame_unfocus(Frame* _, void* data) {
 
 static void MainFrame_goToNextPage(Input* input, SDL_Event* evt, void* data) {
     log_message(LOG_LEVEL_DEBUG, "TODO : Go to next page");
+}
+
+static void MainFrame_onWindowResized(Input* input, SDL_Event* evt, void* data) {
+    MainFrame* self = data;
+    MainFrame_addElements(self, self->app);
 }
