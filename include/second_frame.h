@@ -10,6 +10,8 @@
 struct SecondFrame {
     List* elements;
     App* app;
+    List* numbers;
+    Timer* timer;
 };
 
 SecondFrame* SecondFrame_new(App* app);

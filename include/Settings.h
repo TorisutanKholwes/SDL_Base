@@ -10,6 +10,7 @@
 #define WINDOW_WIDTH 800
 #define WINDOW_HEIGHT 600
 #define WINDOW_TITLE "SDL3 Template Application"
+#define FULLSCREEN 0
 #define FRAME_RATE 60
 
 #define PRODUCTION 0 // Set to 1 for production build, 0 for development

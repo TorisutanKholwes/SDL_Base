@@ -8,6 +8,7 @@
 #include "logger.h"
 #include "utils.h"
 #include "input.h"
+#include "list.h"
 #include "main_frame.h"
 #include "style.h"
 
@@ -23,6 +24,10 @@ int main() {
     };
 
     SDL_WindowFlags flags = SDL_WINDOW_RESIZABLE;
+
+#if !defined(FULLSCREEN) || (defined(FULLSCREEN) && FULLSCREEN == 1)
+    flags |= SDL_WINDOW_FULLSCREEN;
+#endif
 
     SDL_Window *window = SDL_CreateWindow(WINDOW_TITLE,
         WINDOW_WIDTH, WINDOW_HEIGHT, flags);
@@ -102,6 +107,20 @@ int main() {
 
 #if 0
 int main() {
+    int a = 5;
+    int b = 10;
+    List* list = List_create();
+    List_push_int(list, a);
+    List_push_int(list, b);
+
+    void* val1 = List_getFirst(list);
+    if ((int)(long)val1 == 10 || String_equals(val1, "Test")) {
+        printf("Val1 is correct: %d\n", (int)(long)val1);
+    } else {
+        printf("Val1 is incorrect: %d\n", (int)(long)val1);
+    }
+
+
 }
 #endif
 
