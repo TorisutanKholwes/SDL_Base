@@ -17,6 +17,7 @@ struct MapNode {
 struct Map {
     MapNode* root;
     size_t size;
+    bool is_key_string;
 };
 
 struct MapIterator {
@@ -24,7 +25,7 @@ struct MapIterator {
     MapNode* current;
 };
 
-Map* Map_create();
+Map* Map_create(bool is_key_string);
 void Map_destroy(Map* map);
 void Map_clear(Map* map);
 void Map_put(Map* map, void* key, void* value);

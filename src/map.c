@@ -9,7 +9,7 @@
 #include "utils.h"
 #include "string_builder.h"
 
-Map* Map_create() {
+Map* Map_create(bool is_key_string) {
     Map* map = calloc(1, sizeof(Map));
     if (!map) {
         error("Failed to allocate memory for Map");
@@ -23,6 +23,7 @@ Map* Map_create() {
     }
     map->root->prev = map->root;
     map->root->next = map->root;
+    map->is_key_string = is_key_string;
     map->size = 0;
     return map;
 }
@@ -77,8 +78,14 @@ void* Map_get(Map* map, void* key) {
 MapNode* Map_find(Map* map, void* key) {
     MapNode* node = map->root->next;
     while (node != map->root) {
-        if (node->key == key) {
-            return node;
+        if (map->is_key_string) {
+            if (String_equals(node->key, key)) {
+                return node;
+            }
+        } else {
+            if (node->key == key) {
+                return node;
+            }
         }
         node = node->next;
     }

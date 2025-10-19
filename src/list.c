@@ -7,6 +7,10 @@
 #include "utils.h"
 #include "string_builder.h"
 
+static void List_sortBubble(List* list);
+static void List_sortQuick(List* list);
+static void List_sortMerge(List* list);
+
 List *List_create() {
     List *list = calloc(1, sizeof(List));
     if (!list) {
@@ -113,11 +117,17 @@ bool List_empty(List *list) {
     return list->size == 0;
 }
 
-bool List_contains(List *list, void *value) {
+bool List_contains(List *list, void *value, bool isString) {
     ListNode *node = list->head->next;
     while (node != list->head) {
-        if (node->value == value) {
-            return true;
+        if (isString) {
+            if (String_equals(node->value, value)) {
+                return true;
+            }
+        } else {
+            if (node->value == value) {
+                return true;
+            }
         }
         node = node->next;
     }
@@ -142,6 +152,14 @@ void *List_getLast(List *list) {
         return NULL;
     }
     return list->head->prev->value;
+}
+
+void* List_getFirst(List* list) {
+    if (list->size == 0) {
+        error("List is empty");
+        return NULL;
+    }
+    return list->head->next->value;
 }
 
 void List_set(List *list, size_t index, void *value) {
@@ -195,6 +213,193 @@ ListIterator *ListIterator_new(List *list) {
     iterator->index = 0;
     iterator->size = list->size;
     return iterator;
+}
+
+void List_swap(List* list, size_t index1, size_t index2) {
+    if (!list || index1 >= list->size || index2 >= list->size) {
+        error("Index out of bounds in List_swap");
+        return;
+    }
+    if (index1 == index2) return;
+    ListNode *node1 = list->head->next;
+    for (size_t i = 0; i < index1; i++) {
+        node1 = node1->next;
+    }
+    ListNode *node2 = list->head->next;
+    for (size_t i = 0; i < index2; i++) {
+        node2 = node2->next;
+    }
+    void *temp = node1->value;
+    node1->value = node2->value;
+    node2->value = temp;
+}
+
+static void List_sortBubble(List* list) {
+    if (!list || list->size < 2) return;
+
+    bool swapped;
+    do {
+        swapped = false;
+        ListNode* node = list->head->next;
+        while (node->next != list->head) {
+            ListNode* next = node->next;
+            long a = (long)node->value;
+            long b = (long)next->value;
+            if (a > b) {
+                void* temp = node->value;
+                node->value = next->value;
+                next->value = temp;
+                swapped = true;
+            }
+            node = next;
+        }
+    } while (swapped);
+}
+
+static ListNode* partitionQS(ListNode* low, ListNode* high) {
+    long pivot = (long)high->value;
+    ListNode* i = low ? low->prev : NULL;
+    for (ListNode* j = low; j != high; j = j->next) {
+        if ((long)j->value <= pivot) {
+            i = (i == NULL) ? low : i->next;
+            void* tmp = i->value;
+            i->value = j->value;
+            j->value = tmp;
+        }
+    }
+    i = (i == NULL) ? low : i->next;
+    void* tmp = i->value;
+    i->value = high->value;
+    high->value = tmp;
+    return i;
+}
+
+static void quickSortRec(ListNode* low, ListNode* high) {
+    if (!low || !high) return;
+    if (low != high && low != high->next) {
+        ListNode* p = partitionQS(low, high);
+        quickSortRec(low, p->prev);
+        quickSortRec(p->next, high);
+    }
+}
+
+static void List_sortQuick(List* list) {
+    if (!list || list->size < 2) return;
+
+    ListNode* first = list->head->next;
+    ListNode* last = list->head->prev;
+
+    first->prev = NULL;
+    last->next = NULL;
+
+    quickSortRec(first, last);
+
+    ListNode* new_first = first;
+    while (new_first->prev) {
+        new_first = new_first->prev;
+    }
+    ListNode* new_last = last;
+    while (new_last->next) {
+        new_last = new_last->next;
+    }
+    new_first->prev = list->head;
+    new_last->next = list->head;
+    list->head->next = new_first;
+    list->head->prev = new_last;
+}
+
+static ListNode* splitMiddle(ListNode* head) {
+    if (!head || !head->next) return NULL;
+    ListNode* slow = head;
+    ListNode* fast = head->next;
+    while (fast && fast->next) {
+        slow = slow->next;
+        fast = fast->next->next;
+    }
+    ListNode* mid = slow->next;
+    slow->next = NULL;
+    if (mid) mid->prev = NULL;
+    return mid;
+}
+
+static ListNode* mergeTwoSorted(ListNode* a, ListNode* b) {
+    if (!a) return b;
+    if (!b) return a;
+    ListNode* head = NULL;
+    ListNode* tail = NULL;
+
+    while (a && b) {
+        ListNode* take = NULL;
+        if ((long)a->value <= (long)b->value) {
+            take = a;
+            a = a->next;
+        } else {
+            take = b;
+            b = b->next;
+        }
+        take->next = NULL;
+        take->prev = tail;
+        if (tail) tail->next = take;
+        tail = take;
+        if (!head) head = take;
+    }
+    ListNode* rem = a ? a : b;
+    while (rem) {
+        ListNode* next = rem->next;
+        rem->next = NULL;
+        rem->prev = tail;
+        if (tail) tail->next = rem;
+        tail = rem;
+        if (!head) head = rem;
+        rem = next;
+    }
+    return head;
+}
+
+static ListNode* mergeSortRec(ListNode* head) {
+    if (!head || !head->next) return head;
+    ListNode* mid = splitMiddle(head);
+    ListNode* left = mergeSortRec(head);
+    ListNode* right = mergeSortRec(mid);
+    return mergeTwoSorted(left, right);
+}
+
+static void List_sortMerge(List* list) {
+    if (!list || list->size < 2) return;
+
+    ListNode* first = list->head->next;
+    ListNode* last = list->head->prev;
+    first->prev = NULL;
+    last->next = NULL;
+
+    ListNode* new_first = mergeSortRec(first);
+
+    ListNode* new_last = new_first;
+    while (new_last->next) {
+        new_last = new_last->next;
+    }
+
+    list->head->next = new_first;
+    list->head->prev = new_last;
+    new_first->prev = list->head;
+    new_last->next = list->head;
+}
+
+void List_sort(List* list, ListSortType sortType) {
+    switch (sortType) {
+        case LIST_SORT_TYPE_BUBBLE:
+            List_sortBubble(list);
+            break;
+        case LIST_SORT_TYPE_QUICK:
+            List_sortQuick(list);
+            break;
+        case LIST_SORT_TYPE_MERGE:
+            List_sortMerge(list);
+            break;
+        default:
+            log_message(LOG_LEVEL_WARN, "Unknown ListSortType: %d", sortType);
+            break;
+    }
 }
 
 void ListIterator_destroy(ListIterator *iterator) {
