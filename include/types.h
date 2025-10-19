@@ -31,19 +31,26 @@ typedef struct Element Element;
 
 typedef struct Button Button;
 typedef struct Text Text;
+typedef struct InputBox InputBox;
 
 typedef struct ResourceManager ResourceManager;
 
 typedef struct EdgeInsets EdgeInsets;
 typedef struct TextStyle TextStyle;
-typedef struct ButtonStyleColors ButtonStyleColors;
+typedef struct FullStyleColors FullStyleColors;
 typedef struct ButtonStyle ButtonStyle;
+typedef struct InputBoxStyle InputBoxStyle;
 typedef struct Theme Theme;
 
 typedef struct Frame Frame;
 
+typedef struct Box Box;
+typedef struct Circle Circle;
+typedef struct Polygon Polygon;
+
 // Frames
 typedef struct MainFrame MainFrame;
+typedef struct OtherFrame OtherFrame;
 
 // Structure who's not used as a pointer elsewhere
 typedef struct {
@@ -53,5 +60,6 @@ typedef struct {
 // Types of func
 typedef void (*EventHandlerFunc)(Input* input, SDL_Event* evt, void* data);
 
+typedef void (*FrameFocusFunc)(Frame* frame, void* data);
 typedef void (*FrameUpdateFunc)(Frame* frame, void* data);
 typedef void (*FrameRenderFunc)(Frame* frame, SDL_Renderer* renderer, void* data);

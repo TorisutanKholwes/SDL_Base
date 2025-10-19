@@ -83,12 +83,13 @@ void refreshTexture(Text* self) {
         SDL_DestroyTexture(self->texture);
         self->texture = NULL;
     }
-    if (!self->text) {
-        log_message(LOG_LEVEL_WARN, "Text has no string to render.");
-        return;
+    char* text = self->text;
+    if (String_isNullOrEmpty(self->text)) {
+        // Avoid creating an empty texture
+        text = " ";
     }
 
-    SDL_Surface *surface = TTF_RenderText_Blended(self->style->font, self->text, strlen(self->text), Color_toSDLColor(self->style->color));
+    SDL_Surface *surface = TTF_RenderText_Blended(self->style->font, text, strlen(text), Color_toSDLColor(self->style->color));
     if (!surface) {
         error("Failed to create text surface.");
         return;

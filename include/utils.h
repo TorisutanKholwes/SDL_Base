@@ -29,8 +29,8 @@ void Color_destroy(Color* color);
 
 void safe_free(void** ptr);
 int init();
-SDL_FRect createRect(float x, float y, float w, float h);
+SDL_FRect SDL_CreateRect(float x, float y, float w, float h);
 void SDL_RenderStroke(SDL_Renderer* renderer, const SDL_FRect* rect, float thickness);
 char* Strdup(const char* str);
-int file_exists(const char* path);
-void list_dir(const char* path);
+bool String_isNullOrEmpty(const char* str);
+bool String_equals(const char* a, const char* b);

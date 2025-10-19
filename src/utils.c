@@ -54,7 +54,7 @@ int init() {
     return EXIT_SUCCESS;
 }
 
-SDL_FRect createRect(const float x, const float y, const float w, const float h) {
+SDL_FRect SDL_CreateRect(const float x, const float y, const float w, const float h) {
     SDL_FRect rect = { 0 };
     rect.w = w;
     rect.h = h;
@@ -146,25 +146,13 @@ char* Strdup(const char* str) {
     return copy;
 }
 
-// To remove
-#include <dirent.h>
-#include <sys/stat.h>
-
-
-int file_exists(const char* path) {
-    struct stat buffer;
-    return (stat(path, &buffer) == 0);
+bool String_isNullOrEmpty(const char* str) {
+    if (!str) return true;
+    return strlen(str) == 0;
 }
 
-void list_dir(const char* path) {
-    DIR* dir = opendir(path);
-    if (!dir) {
-        printf("Impossible d’ouvrir le dossier : %s\n", path);
-        return;
-    }
-    struct dirent* entry;
-    while ((entry = readdir(dir)) != NULL) {
-        printf("%s\n", entry->d_name);
-    }
-    closedir(dir);
+bool String_equals(const char* a, const char* b) {
+    if (!a && !b) return true;
+    if (!a || !b) return false;
+    return strcmp(a, b) == 0;
 }
