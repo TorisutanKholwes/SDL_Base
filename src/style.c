@@ -26,7 +26,7 @@ void EdgeInsets_destroy(EdgeInsets* insets) {
     safe_free((void**)&insets);
 }
 
-TextStyle* TextStyle_new(TTF_Font* font, int size, Color* color, TTF_FontStyleFlags style, EdgeInsets* padding, EdgeInsets* margin) {
+TextStyle* TextStyle_new(TTF_Font* font, int size, Color* color, TTF_FontStyleFlags style) {
     TextStyle* text_style = calloc(1, sizeof(TextStyle));
     if (!text_style) {
         error("Failed to allocate memory for TextStyle");
@@ -36,16 +36,12 @@ TextStyle* TextStyle_new(TTF_Font* font, int size, Color* color, TTF_FontStyleFl
     text_style->size = size;
     text_style->color = color;
     text_style->style = style;
-    text_style->padding = padding;
-    text_style->margin = margin;
     return text_style;
 }
 
 void TextStyle_destroy(TextStyle* style) {
     if (!style) return;
     safe_free((void**)&style->color);
-    EdgeInsets_destroy(style->padding);
-    EdgeInsets_destroy(style->margin);
     safe_free((void**)&style);
 }
 
@@ -59,8 +55,6 @@ TextStyle* TextStyle_default(ResourceManager* resource_manager) {
     style->font = ResourceManager_getDefaultFont(resource_manager, 32);
     style->color = Color_rgb(255, 255, 255);
     style->style = TTF_STYLE_NORMAL;
-    style->padding = EdgeInsets_zero();
-    style->margin = EdgeInsets_newAll(4);
     return style;
 }
 
@@ -74,8 +68,6 @@ TextStyle* TextStyle_defaultFromTheme(Theme* theme, ResourceManager* resource_ma
     style->font = ResourceManager_getDefaultFont(resource_manager, style->size);
     style->color = theme->primary;
     style->style = TTF_STYLE_NORMAL;
-    style->padding = EdgeInsets_zero();
-    style->margin = EdgeInsets_newAll(4);
     return style;
 }
 
@@ -99,7 +91,7 @@ void FullStyleColors_destroy(FullStyleColors* colors) {
     safe_free((void**)&colors);
 }
 
-ButtonStyle* ButtonStyle_new(FullStyleColors* colors, int border_width, EdgeInsets* padding, EdgeInsets* margin, TTF_Font* text_font, TTF_FontStyleFlags text_style, int text_size) {
+ButtonStyle* ButtonStyle_new(FullStyleColors* colors, int border_width, TTF_Font* text_font, TTF_FontStyleFlags text_style, int text_size, EdgeInsets* paddings) {
     ButtonStyle* style = calloc(1, sizeof(ButtonStyle));
     if (!style) {
         error("Failed to allocate memory for ButtonStyle");
@@ -107,19 +99,17 @@ ButtonStyle* ButtonStyle_new(FullStyleColors* colors, int border_width, EdgeInse
     }
     style->colors = colors;
     style->border_width = border_width;
-    style->padding = padding;
-    style->margin = margin;
     style->text_font = text_font;
     style->text_style = text_style;
     style->text_size = text_size;
+    style->paddings = paddings;
     return style;
 }
 
 void ButtonStyle_destroy(ButtonStyle* style) {
     if (!style) return;
     FullStyleColors_destroy(style->colors);
-    EdgeInsets_destroy(style->padding);
-    EdgeInsets_destroy(style->margin);
+    EdgeInsets_destroy(style->paddings);
     safe_free((void**)&style);
 }
 
@@ -130,8 +120,6 @@ ButtonStyle* ButtonStyle_default(ResourceManager* resource_manager) {
         return NULL;
     }
     style->border_width = 2;
-    style->padding = EdgeInsets_zero();
-    style->margin = EdgeInsets_newAll(4);
     style->text_size = 24;
     style->text_font = ResourceManager_getDefaultFont(resource_manager, style->text_size);
     style->text_style = TTF_STYLE_NORMAL;
@@ -139,6 +127,7 @@ ButtonStyle* ButtonStyle_default(ResourceManager* resource_manager) {
         Color_rgb(220, 220, 220),
         Color_rgb(100, 100, 100),
         Color_rgb(0, 0, 0));
+    style->paddings = EdgeInsets_newSymmetric(10, 20);
     return style;
 }
 
@@ -149,8 +138,6 @@ ButtonStyle* ButtonStyle_defaultFromTheme(Theme* theme, ResourceManager* resourc
         return NULL;
     }
     style->border_width = 2;
-    style->padding = EdgeInsets_zero();
-    style->margin = EdgeInsets_newAll(4);
     style->text_size = 32;
     style->text_font = ResourceManager_getDefaultFont(resource_manager, style->text_size);
     style->text_style = TTF_STYLE_NORMAL;
@@ -158,10 +145,11 @@ ButtonStyle* ButtonStyle_defaultFromTheme(Theme* theme, ResourceManager* resourc
         theme->secondary,
         theme->primary,
         theme->background);
+    style->paddings = EdgeInsets_newSymmetric(10, 20);
     return style;
 }
 
-InputBoxStyle* InputBoxStyle_new(TTF_Font* font, int text_size, TTF_FontStyleFlags style, FullStyleColors* colors, EdgeInsets* padding, EdgeInsets* margin) {
+InputBoxStyle* InputBoxStyle_new(TTF_Font* font, int text_size, TTF_FontStyleFlags style, FullStyleColors* colors) {
     InputBoxStyle* self = calloc(1, sizeof(InputBoxStyle));
     if (!self) {
         error("Failed to allocate memory for InputBoxStyle");
@@ -171,8 +159,6 @@ InputBoxStyle* InputBoxStyle_new(TTF_Font* font, int text_size, TTF_FontStyleFla
     self->text_size = text_size;
     self->style = style;
     self->colors = colors;
-    self->padding = padding;
-    self->margin = margin;
     return self;
 }
 
@@ -180,8 +166,6 @@ void InputBoxStyle_destroy(InputBoxStyle* style) {
     if (!style) return;
     safe_free((void**)&style->font);
     FullStyleColors_destroy(style->colors);
-    EdgeInsets_destroy(style->padding);
-    EdgeInsets_destroy(style->margin);
     safe_free((void**)&style);
 }
 
@@ -198,8 +182,6 @@ InputBoxStyle* InputBoxStyle_default(ResourceManager* resource_manager) {
         Color_rgb(255, 255, 255),
         Color_rgb(0, 0, 0),
         Color_rgb(0, 0, 0));
-    style->padding = EdgeInsets_zero();
-    style->margin = EdgeInsets_newAll(4);
     return style;
 }
 
@@ -216,8 +198,6 @@ InputBoxStyle* InputBoxStyle_defaultFromTheme(Theme* theme, ResourceManager* res
         theme->background,
         theme->primary,
         theme->primary);
-    style->padding = EdgeInsets_zero();
-    style->margin = EdgeInsets_newAll(4);
     return style;
 }
 
@@ -255,7 +235,7 @@ Theme* Theme_default(ResourceManager* resource_manager) {
     theme->background = Color_rgb(30, 144, 255);
     theme->primary = Color_rgb(255, 255, 255);
     theme->secondary = Color_rgb(200, 200, 200);
-    theme->title_style = TextStyle_new(ResourceManager_getDefaultBoldFont(resource_manager, 48), 48, Color_rgb(255, 255, 255), TTF_STYLE_UNDERLINE, EdgeInsets_zero(), EdgeInsets_newAll(8));
+    theme->title_style = TextStyle_new(ResourceManager_getDefaultBoldFont(resource_manager, 48), 48, Color_rgb(255, 255, 255), TTF_STYLE_UNDERLINE);
     theme->body_style = TextStyle_default(resource_manager);
     theme->button_style = ButtonStyle_default(resource_manager);
     return theme;

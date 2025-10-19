@@ -35,11 +35,13 @@ struct Polygon {
     Position** vertices;
     int vertex_count;
     Color* background;
+    Color* border;
+    int border_size;
 };
 
-Polygon* Polygon_new(Position** vertices, int vertex_count, Color* background);
+Polygon* Polygon_new(Position** vertices, int vertex_count, int border_size, Color* background, Color* border);
 void Polygon_destroy(Polygon* self);
 void Polygon_render(Polygon* self, SDL_Renderer* renderer);
 
-Polygon* Polygon_newEmpty(Color* background);
+Polygon* Polygon_newEmpty(int border_size, Color* background, Color* border);
 void Polygon_addVertex(Polygon* self, Position* vertex);

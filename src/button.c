@@ -14,21 +14,47 @@
 static void Button_checkHover(Input* input, SDL_Event* evt, void* buttonData);
 static void Button_checkPressed(Input* input, SDL_Event* evt, void* buttonData);
 
-Button* Button_new(const App* app, const char* label, SDL_FRect rect, ButtonStyle* style, void* parent) {
+Button* Button_new(const App* app, Position* position, ButtonStyle* style, void* parent, const char* label) {
     Button* button = calloc(1, sizeof(Button));
     if (!button) {
         error("Failed to allocate memory for Button");
         return NULL;
     }
-    button->text = Text_new(app->renderer, label, TextStyle_new(
+    button->text = Text_new(app->renderer, TextStyle_new(
         style->text_font,
         style->text_size,
         style->colors->text,
-        style->text_style,
-        EdgeInsets_zero(),
-        EdgeInsets_zero()
-    ), Position_null(), false);
-    button->rect = rect;
+        style->text_style), Position_null(), false, label);
+    Size size = Text_getSize(button->text);
+    button->rect = SDL_CreateRect(position->x, position->y, size.width, size.height);
+    button->style = style;
+    button->input = app->input;
+    button->hovered = false;
+    button->pressed = false;
+    button->focused = false;
+    button->parent = parent;
+
+    return button;
+}
+
+Button* Button_newf(const App* app, Position* position, ButtonStyle* style, void* parent, const char* format, ...) {
+    Button* button = calloc(1, sizeof(Button));
+    if (!button) {
+        error("Failed to allocate memory for Button");
+        return NULL;
+    }
+    va_list args;
+    va_start(args, format);
+    char buffer[1024];
+    vsnprintf(buffer, sizeof(buffer), format, args);
+    va_end(args);
+    button->text = Text_new(app->renderer, TextStyle_new(
+        style->text_font,
+        style->text_size,
+        style->colors->text,
+        style->text_style), Position_null(), false, buffer);
+    Size size = Text_getSize(button->text);
+    button->rect = SDL_CreateRect(position->x, position->y, size.width, size.height);
     button->style = style;
     button->input = app->input;
     button->hovered = false;
@@ -52,15 +78,19 @@ void Button_render(Button* button, SDL_Renderer* renderer) {
 
     Color* border = button->style->colors->border;
     Color* fill = button->style->colors->background;
+    int borderWidth = button->style->border_width;
+
+    EdgeInsets* paddings = button->style->paddings;
     SDL_SetRenderDrawColor(renderer, border->r, border->g, border->b, border->a);
-    SDL_FRect borderRect = { button->rect.x - 2, button->rect.y - 2, button->rect.w + 4, button->rect.h + 4};
+    SDL_FRect borderRect = { button->rect.x - borderWidth - paddings->left, button->rect.y - borderWidth - paddings->top, button->rect.w + (borderWidth * 2)+ (paddings->right + paddings->left), button->rect.h + (borderWidth * 2) + (paddings->bottom + paddings->top)};
     SDL_RenderFillRect(renderer, &borderRect);
 
     SDL_SetRenderDrawColor(renderer, fill->r, fill->g, fill->b, fill->a);
-    SDL_RenderFillRect(renderer, &button->rect);
+    SDL_FRect fillRect = { button->rect.x - paddings->left, button->rect.y - paddings->top, button->rect.w + (paddings->right + paddings->left),  button->rect.h + (paddings->bottom + paddings->top)};
+    SDL_RenderFillRect(renderer, &fillRect);
 
-    const float textX = button->rect.x + (button->rect.w / 2) - (Text_getSize(button->text).width / 2);
-    const float textY = button->rect.y + (button->rect.h / 2) - (Text_getSize(button->text).height / 2);
+    const float textX = fillRect.x + (fillRect.w / 2) - (Text_getSize(button->text).width / 2);
+    const float textY = fillRect.y + (fillRect.h / 2) - (Text_getSize(button->text).height / 2);
     Text_setPosition(button->text, textX, textY);
     Text_render(button->text);
 }
@@ -131,12 +161,9 @@ static void Button_checkHover(Input* input, SDL_Event* evt, void* buttonData) {
 
 static void Button_checkPressed(Input* input, SDL_Event* evt, void* buttonData) {
     Button* button = buttonData;
-    bool isHovering = Input_mouseInRect(input, (SDL_FRect){
-        .x = (int)button->rect.x,
-        .y = (int)button->rect.y,
-        .w = (int)button->rect.w,
-        .h = (int)button->rect.h
-    });
+    EdgeInsets* paddings = button->style->paddings;
+    SDL_FRect fullRect = { button->rect.x - paddings->left, button->rect.y - paddings->top, button->rect.w + (paddings->right + paddings->left),  button->rect.h + (paddings->bottom + paddings->top)};
+    bool isHovering = Input_mouseInRect(input, fullRect);
     if (isHovering && evt->type == SDL_EVENT_MOUSE_BUTTON_DOWN) {
         button->pressed = true;
         if (button->onClick) {

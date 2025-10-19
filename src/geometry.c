@@ -98,7 +98,7 @@ void Circle_render(Circle* self, SDL_Renderer *renderer) {
     }
 }
 
-Polygon* Polygon_new(Position** vertices, int vertex_count, Color* background) {
+Polygon* Polygon_new(Position** vertices, int vertex_count, int border_size, Color* background, Color* border) {
     Polygon* self = calloc(1, sizeof(Polygon));
     if (!self) {
         error("Polygon_new: Failed to allocate memory for Polygon");
@@ -106,7 +106,9 @@ Polygon* Polygon_new(Position** vertices, int vertex_count, Color* background) {
     }
     self->vertices = vertices;
     self->vertex_count = vertex_count;
+    self->border_size = border_size;
     self->background = background;
+    self->border = border;
     return self;
 }
 
@@ -117,6 +119,7 @@ void Polygon_destroy(Polygon* self) {
     }
     safe_free((void**)&self->vertices);
     Color_destroy(self->background);
+    Color_destroy(self->border);
     safe_free((void**)&self);
 }
 
@@ -175,15 +178,33 @@ void Polygon_render(Polygon* self, SDL_Renderer* renderer) {
         }
     }
 
-    for (int i = 0; i < self->vertex_count; i++) {
-        int j = (i + 1) % self->vertex_count;
-        SDL_RenderLine(renderer, self->vertices[i]->x, self->vertices[i]->y, self->vertices[j]->x, self->vertices[j]->y);
+    if (self->border && self->border_size > 0) {
+        Color* border = self->border;
+        SDL_SetRenderDrawColor(renderer, border->r, border->g, border->b, border->a);
+        for (int i = 0; i < self->vertex_count; i++) {
+            int j = (i + 1) % self->vertex_count;
+            float x1 = self->vertices[i]->x;
+            float y1 = self->vertices[i]->y;
+            float x2 = self->vertices[j]->x;
+            float y2 = self->vertices[j]->y;
+
+            float dx = x2 - x1;
+            float dy = y2 - y1;
+            float len = sqrtf(dx * dx + dy * dy);
+            float nx = -dy / len;
+            float ny = dx / len;
+            for (int b = -self->border_size/2; b <= self->border_size/2; b++) {
+                float ox = nx * b;
+                float oy = ny * b;
+                SDL_RenderLine(renderer, x1 + ox, y1 + oy, x2 + ox, y2 + oy);
+            }
+        }
     }
 
     safe_free((void**)&intersections);
 }
 
-Polygon* Polygon_newEmpty(Color* background) {
+Polygon* Polygon_newEmpty(int border_size, Color* background, Color* border) {
     Polygon* self = calloc(1, sizeof(Polygon));
     if (!self) {
         error("Polygon_newEmpty: Failed to allocate memory for Polygon");
@@ -196,7 +217,9 @@ Polygon* Polygon_newEmpty(Color* background) {
         return NULL;
     }
     self->vertex_count = 0;
+    self->border_size = border_size;
     self->background = background;
+    self->border = border;
     return self;
 }
 

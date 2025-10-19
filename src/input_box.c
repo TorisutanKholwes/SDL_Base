@@ -27,14 +27,12 @@ InputBox *InputBox_new(App *app, SDL_FRect rect, InputBoxStyle *style, void* par
     self->str = "";
     self->input = app->input;
     self->timer = Timer_new();
-    self->text = Text_new(app->renderer, "", TextStyle_new(
+    self->text = Text_new(app->renderer, TextStyle_new(
                               style->font,
                               style->text_size,
                               style->colors->text,
-                              style->style,
-                              EdgeInsets_zero(),
-                              EdgeInsets_zero()
-                          ), Position_null(), false);
+                              style->style),
+                              Position_null(), false, "");
     self->focused = false;
     self->selected = false;
     self->parent = parent;
