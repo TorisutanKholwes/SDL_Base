@@ -48,6 +48,8 @@ typedef struct Box Box;
 typedef struct Circle Circle;
 typedef struct Polygon Polygon;
 
+typedef struct Timer Timer;
+
 // Frames
 typedef struct MainFrame MainFrame;
 typedef struct OtherFrame OtherFrame;

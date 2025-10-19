@@ -6,11 +6,10 @@
 
 #include "app.h"
 #include "input.h"
-#include "list.h"
 #include "logger.h"
-#include "map.h"
 #include "style.h"
 #include "text.h"
+#include "timer.h"
 #include "utils.h"
 
 static void InputBox_checkKeyDown(Input* input, SDL_Event* event, void* data);
@@ -25,7 +24,9 @@ InputBox *InputBox_new(App *app, SDL_FRect rect, InputBoxStyle *style, void* par
     self->rect = rect;
     self->style = style;
     self->app = app;
+    self->str = "";
     self->input = app->input;
+    self->timer = Timer_new();
     self->text = Text_new(app->renderer, "", TextStyle_new(
                               style->font,
                               style->text_size,
@@ -44,6 +45,7 @@ void InputBox_destroy(InputBox *self) {
     if (!self) return;
     Text_destroy(self->text);
     InputBoxStyle_destroy(self->style);
+    Timer_destroy(self->timer);
     safe_free((void **) &self);
 }
 
@@ -61,9 +63,16 @@ void InputBox_render(InputBox *self, SDL_Renderer *renderer) {
     SDL_SetRenderDrawColor(renderer, fill->r, fill->g, fill->b, fill->a);
     SDL_RenderFillRect(renderer, &self->rect);
 
-    const float textX = self->rect.x + 5; // Padding of 5
+    const float textX = self->rect.x + 5;
     const float textY = self->rect.y + (self->rect.h / 2) - (Text_getSize(self->text).height / 2);
     Text_setPosition(self->text, textX, textY);
+
+    if (self->selected && self->cursor_visible) {
+        Text_setStringf(self->text, "%s|", InputBox_getFormattedString(self));
+    } else {
+        Text_setString(self->text, InputBox_getFormattedString(self));
+    }
+
     if (!String_isNullOrEmpty(self->text->text)) {
         Text_render(self->text);
     }
@@ -73,6 +82,10 @@ void InputBox_update(InputBox *self) {
     if (!self->focused) {
         InputBox_focus(self);
     }
+    if (self->selected && Timer_getTicks(self->timer) >= 500) {
+        self->cursor_visible = !self->cursor_visible;
+        Timer_reset(self->timer);
+    }
 }
 
 void InputBox_setParent(InputBox *self, void *parent) {
@@ -81,6 +94,7 @@ void InputBox_setParent(InputBox *self, void *parent) {
 
 void InputBox_focus(InputBox *self) {
     self->focused = true;
+    Timer_start(self->timer);
     Input_addEventHandler(self->input, SDL_EVENT_TEXT_INPUT, InputBox_checkKeyDown, self);
     Input_addEventHandler(self->input, SDL_EVENT_KEY_DOWN, InputBox_checkKeyDown, self);
     Input_addEventHandler(self->input, SDL_EVENT_MOUSE_BUTTON_DOWN, InputBox_checkMouseClick, self);
@@ -88,6 +102,7 @@ void InputBox_focus(InputBox *self) {
 
 void InputBox_unFocus(InputBox *self) {
     self->focused = false;
+    Timer_stop(self->timer);
     Input_removeOneEventHandler(self->input, SDL_EVENT_TEXT_INPUT, self);
     Input_removeOneEventHandler(self->input, SDL_EVENT_KEY_DOWN, self);
     Input_removeOneEventHandler(self->input, SDL_EVENT_MOUSE_BUTTON_DOWN, self);
@@ -97,7 +112,23 @@ void InputBox_unFocus(InputBox *self) {
 }
 
 void InputBox_setString(InputBox *self, const char *str) {
+    self->str = Strdup(str);
     Text_setString(self->text, str);
+}
+
+char* InputBox_getFormattedString(InputBox* self) {
+    if (!self) return NULL;
+    if (self->password_mode) {
+        size_t len = strlen(self->str);
+        char* maskedStr = calloc(len + 1, sizeof(char));
+        for (size_t i = 0; i < len; i++) {
+            maskedStr[i] = '*';
+        }
+        maskedStr[len] = '\0';
+        return maskedStr;
+    } else {
+        return self->str;
+    }
 }
 
 void InputBox_setStringf(InputBox *self, const char *format, ...) {
@@ -107,12 +138,17 @@ void InputBox_setStringf(InputBox *self, const char *format, ...) {
     char buffer[1024];
     vsnprintf(buffer, sizeof(buffer), format, args);
     va_end(args);
+    self->str = Strdup(buffer);
     Text_setString(self->text, buffer);
 }
 
 char* InputBox_getString(InputBox* input_box) {
     if (!input_box) return NULL;
-    return input_box->text->text;
+    return input_box->str;
+}
+
+void InputBox_setPasswordMode(InputBox* self, bool password_mode) {
+    self->password_mode = password_mode;
 }
 
 static void InputBox_checkMouseClick(Input* input, SDL_Event* event, void* data) {
@@ -142,10 +178,11 @@ static void InputBox_checkKeyDown(Input* input, SDL_Event* event, void* data) {
         case SDL_EVENT_KEY_DOWN:
             switch (event->key.key) {
                 case SDLK_BACKSPACE:
-                    char* currentText = self->text->text;
+                    char* currentText = self->str;
                     size_t len = strlen(currentText);
                     if (len > 0) {
                         currentText[len - 1] = '\0';
+                        self->str = Strdup(currentText);
                         Text_setString(self->text, currentText);
                     }
                     break;
@@ -154,7 +191,8 @@ static void InputBox_checkKeyDown(Input* input, SDL_Event* event, void* data) {
             }
             break;
         case SDL_EVENT_TEXT_INPUT:
-            Text_setStringf(self->text, "%s%s", self->text->text, event->text.text);
+            Text_setStringf(self->text, "%s%s", self->str, event->text.text);
+            self->str = Strdup(self->text->text);
             break;
         default:
             log_message(LOG_LEVEL_WARN, "Event type %d not recognized", event->type);

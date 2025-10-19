@@ -11,13 +11,19 @@ struct InputBox {
     App* app;
     Input* input;
 
+    Timer* timer;
+
     Text* text;
     SDL_FRect rect;
+
+    char* str;
+    bool password_mode;
 
     InputBoxStyle* style;
 
     bool focused;
     bool selected;
+    bool cursor_visible;
 
     void* parent;
 };
@@ -32,5 +38,7 @@ void InputBox_unFocus(InputBox* input_box);
 void InputBox_setString(InputBox* input_box, const char* str);
 void InputBox_setStringf(InputBox* input_box, const char* format, ...);
 char* InputBox_getString(InputBox* input_box);
+char* InputBox_getFormattedString(InputBox* input_box);
+void InputBox_setPasswordMode(InputBox* input_box, bool password_mode);
 
 
