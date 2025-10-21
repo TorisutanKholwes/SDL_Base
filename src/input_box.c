@@ -24,13 +24,13 @@ InputBox *InputBox_new(App *app, SDL_FRect rect, InputBoxStyle *style, void* par
     self->rect = rect;
     self->style = style;
     self->app = app;
-    self->str = "";
+    self->str = Strdup("");
     self->input = app->input;
     self->timer = Timer_new();
     self->text = Text_new(app->renderer, TextStyle_new(
                               style->font,
                               style->text_size,
-                              style->colors->text,
+                              Color_copy(style->colors->text),
                               style->style),
                               Position_null(), false, "");
     self->focused = false;
@@ -44,12 +44,13 @@ void InputBox_destroy(InputBox *self) {
     Text_destroy(self->text);
     InputBoxStyle_destroy(self->style);
     Timer_destroy(self->timer);
+    safe_free((void**)&self->str);
     safe_free((void **) &self);
 }
 
 void InputBox_render(InputBox *self, SDL_Renderer *renderer) {
 
-    Text_setColor(self->text, self->style->colors->text);
+    Text_setColor(self->text, Color_copy(self->style->colors->text));
 
     Color *border = self->style->colors->border;
     Color *fill = self->style->colors->background;
@@ -182,6 +183,7 @@ static void InputBox_checkKeyDown(Input* input, SDL_Event* event, void* data) {
                         currentText[len - 1] = '\0';
                         self->str = Strdup(currentText);
                         Text_setString(self->text, currentText);
+                        safe_free((void**)&currentText);
                     }
                     break;
                 default:
@@ -189,8 +191,26 @@ static void InputBox_checkKeyDown(Input* input, SDL_Event* event, void* data) {
             }
             break;
         case SDL_EVENT_TEXT_INPUT:
-            Text_setStringf(self->text, "%s%s", self->str, event->text.text);
-            self->str = Strdup(self->text->text);
+            const char* add = event->text.text;
+            size_t add_len = add ? strlen(add) : 0;
+            size_t old_len = self->str ? strlen(self->str) : 0;
+            char* new_str = calloc(old_len + add_len + 1, sizeof(char));
+            if (!new_str) {
+                error("Failed to allocate memory for InputBox string");
+                return;
+            }
+            if (self->str && old_len > 0) {
+                memcpy(new_str, self->str, old_len);
+            }
+            if (add_len > 0) {
+                memcpy(new_str + old_len, add, add_len);
+            }
+            new_str[old_len + add_len] = '\0';
+            if (self->str) {
+                safe_free((void**)&self->str);
+            }
+            self->str = new_str;
+            Text_setString(self->text, new_str);
             break;
         default:
             log_message(LOG_LEVEL_WARN, "Event type %d not recognized", event->type);

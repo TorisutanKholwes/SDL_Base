@@ -24,9 +24,56 @@ ResourceManager* ResourceManager_create(SDL_Renderer* renderer, MIX_Mixer* mixer
 
 void ResourceManager_destroy(ResourceManager* self) {
     if (!self) return;
-    Map_destroy(self->texturesCache);
-    Map_destroy(self->fontsCache);
-    Map_destroy(self->soundsCache);
+
+    if (self->texturesCache) {
+        MapIterator* it = MapIterator_new(self->texturesCache);
+        while (MapIterator_hasNext(it)) {
+            MapIterator_next(it);
+            void* key = MapIterator_key(it);
+            void* value = MapIterator_value(it);
+            SDL_DestroyTexture((SDL_Texture*)value);
+            safe_free(&key);
+        }
+        MapIterator_destroy(it);
+        Map_destroy(self->texturesCache);
+    }
+
+    if (self->fontsCache) {
+        MapIterator* it = MapIterator_new(self->fontsCache);
+        while (MapIterator_hasNext(it)) {
+            MapIterator_next(it);
+            void* key = MapIterator_key(it);
+            Map* sizeMap = (Map*)MapIterator_value(it);
+            if (sizeMap && Map_size(sizeMap) > 0) {
+                MapIterator* sizeIt = MapIterator_new(sizeMap);
+                while (MapIterator_hasNext(sizeIt)) {
+                    MapIterator_next(sizeIt);
+                    TTF_Font* font = MapIterator_value(sizeIt);
+                    if (font) {
+                        TTF_CloseFont(font);
+                    }
+                }
+                MapIterator_destroy(sizeIt);
+                Map_destroy(sizeMap);
+            }
+            safe_free(&key);
+        }
+        MapIterator_destroy(it);
+        Map_destroy(self->fontsCache);
+    }
+
+    if (self->soundsCache) {
+        MapIterator* it = MapIterator_new(self->soundsCache);
+        while (MapIterator_hasNext(it)) {
+            MapIterator_next(it);
+            void* key = MapIterator_key(it);
+            void* value = MapIterator_value(it);
+            MIX_DestroyAudio((MIX_Audio*)value);
+            safe_free(&key);
+        }
+        MapIterator_destroy(it);
+        Map_destroy(self->soundsCache);
+    }
     safe_free((void**)&self);
 }
 

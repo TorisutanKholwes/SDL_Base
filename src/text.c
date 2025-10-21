@@ -62,6 +62,7 @@ void Text_destroy(Text* self) {
         SDL_DestroyTexture(self->texture);
     }
     TextStyle_destroy(self->style);
+    Position_destroy(self->position);
     safe_free((void**)&(self->text));
     safe_free((void**)&self);
 }
@@ -90,6 +91,10 @@ void Text_setStringf(Text* self, const char* format, ...) {
 void Text_setColor(Text* self, Color* color) {
     if (memcmp(&(self->style->color), color, sizeof(Color)) == 0) {
         return;
+    }
+
+    if (self->style->color) {
+        Color_destroy(self->style->color);
     }
 
     self->style->color = color;

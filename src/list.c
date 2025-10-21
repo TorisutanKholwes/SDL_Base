@@ -32,6 +32,7 @@ List *List_create() {
 void List_destroy(List *list) {
     if (!list) return;
     List_clear(list);
+    safe_free((void **) &list->head);
     safe_free((void **) &list);
 }
 
@@ -200,19 +201,6 @@ char *List_toString(List *list, const char *format, void * (*formatValueFunc)(vo
     char *result = StringBuilder_build(sb);
     StringBuilder_destroy(sb);
     return result;
-}
-
-ListIterator *ListIterator_new(List *list) {
-    ListIterator *iterator = calloc(1, sizeof(ListIterator));
-    if (!iterator) {
-        error("Failed to allocate memory for ListIterator");
-        return NULL;
-    }
-    iterator->head = list->head;
-    iterator->current = list->head->next;
-    iterator->index = 0;
-    iterator->size = list->size;
-    return iterator;
 }
 
 void List_swap(List* list, size_t index1, size_t index2) {
@@ -401,6 +389,20 @@ void List_sort(List* list, ListSortType sortType) {
             break;
     }
 }
+
+ListIterator *ListIterator_new(List *list) {
+    ListIterator *iterator = calloc(1, sizeof(ListIterator));
+    if (!iterator) {
+        error("Failed to allocate memory for ListIterator");
+        return NULL;
+    }
+    iterator->head = list->head;
+    iterator->current = list->head->next;
+    iterator->index = 0;
+    iterator->size = list->size;
+    return iterator;
+}
+
 
 void ListIterator_destroy(ListIterator *iterator) {
     if (!iterator) return;

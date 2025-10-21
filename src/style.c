@@ -85,9 +85,15 @@ FullStyleColors* FullStyleColors_new(Color* background, Color* border, Color* te
 
 void FullStyleColors_destroy(FullStyleColors* colors) {
     if (!colors) return;
-    safe_free((void**)&colors->background);
-    safe_free((void**)&colors->border);
-    safe_free((void**)&colors->text);
+    if (colors->background) {
+        safe_free((void**)&colors->background);
+    }
+    if (colors->border) {
+        safe_free((void**)&colors->border);
+    }
+    if (colors->text) {
+        safe_free((void**)&colors->text);
+    }
     safe_free((void**)&colors);
 }
 
@@ -164,7 +170,6 @@ InputBoxStyle* InputBoxStyle_new(TTF_Font* font, int text_size, TTF_FontStyleFla
 
 void InputBoxStyle_destroy(InputBoxStyle* style) {
     if (!style) return;
-    safe_free((void**)&style->font);
     FullStyleColors_destroy(style->colors);
     safe_free((void**)&style);
 }

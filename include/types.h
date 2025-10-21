@@ -66,3 +66,5 @@ typedef void (*EventHandlerFunc)(Input* input, SDL_Event* evt, void* data);
 typedef void (*FrameFocusFunc)(Frame* frame, void* data);
 typedef void (*FrameUpdateFunc)(Frame* frame, void* data);
 typedef void (*FrameRenderFunc)(Frame* frame, SDL_Renderer* renderer, void* data);
+
+typedef void (*FrameDestroyFunc)(void* data);

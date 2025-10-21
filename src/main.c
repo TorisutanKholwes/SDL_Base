@@ -10,6 +10,7 @@
 #include "input.h"
 #include "list.h"
 #include "main_frame.h"
+#include "resource_manager.h"
 #include "style.h"
 
 #if 1
@@ -70,7 +71,7 @@ int main() {
     app->theme = Theme_default(app->manager);
 
     MainFrame* mainFrame = MainFrame_new(app);
-    App_addFrame(app, Frame_new(mainFrame, MainFrame_render, MainFrame_update, MainFrame_focus, MainFrame_unfocus));
+    App_addFrame(app, Frame_new(mainFrame, MainFrame_render, MainFrame_update, MainFrame_focus, MainFrame_unfocus, (FrameDestroyFunc)MainFrame_destroy));
 
     while (app->running) {
         Input_update(app->input);
@@ -86,17 +87,37 @@ int main() {
         SDL_RenderClear(renderer);
 
         Frame* frame = App_getCurrentFrame(app);
-        if (frame) {
-            Frame_update(frame);
-            Frame_render(frame, renderer);
+
+        if (!frame) {
+            log_message(LOG_LEVEL_WARN, "No current frame to render.");
+            continue;
         }
+
+        Frame_update(frame);
+        if (app->frameChanged) {
+            frame = App_getCurrentFrame(app);
+            app->frameChanged = false;
+            if (!frame) {
+                log_message(LOG_LEVEL_WARN, "No current frame to render after frame change.");
+                continue;
+            }
+        }
+        Frame_render(frame, renderer);
 
         SDL_RenderPresent(app->renderer);
 
         SDL_Delay(16); // Roughly 60 FPS
     }
 
-    MainFrame_destroy(mainFrame);
+    while (List_size(app->stack) > 0) {
+        Frame* frame = List_popLast(app->stack);
+        Frame_destroy(frame);
+    }
+
+    SDL_CloseAudioDevice(audioDevice);
+
+    // Need to be destroyed before App_quit because it uses SDL3 functions
+    ResourceManager_destroy(app->manager);
 
     App_quit(app);
     App_destroy(app);

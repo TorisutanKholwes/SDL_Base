@@ -31,14 +31,16 @@ Map* Map_create(bool is_key_string) {
 void Map_destroy(Map* map) {
     if (!map) return;
     Map_clear(map);
+    safe_free((void**)&map->root);
     safe_free((void**)&map);
 }
 
 void Map_clear(Map* map) {
-    MapNode* node = map->root;
-    while (node) {
+    MapNode* node = map->root->next;
+    while (node != map->root) {
         MapNode* next = node->next;
-        safe_free((void**)&next);
+        if (node == map->root && next == map->root) break;
+        safe_free((void**)&node);
         node = next;
     }
     map->size = 0;

@@ -23,7 +23,7 @@ Button* Button_new(const App* app, Position* position, ButtonStyle* style, void*
     button->text = Text_new(app->renderer, TextStyle_new(
         style->text_font,
         style->text_size,
-        style->colors->text,
+        Color_copy(style->colors->text),
         style->text_style), Position_null(), false, label);
     Size size = Text_getSize(button->text);
     button->rect = SDL_CreateRect(position->x, position->y, size.width, size.height);
@@ -51,7 +51,7 @@ Button* Button_newf(const App* app, Position* position, ButtonStyle* style, void
     button->text = Text_new(app->renderer, TextStyle_new(
         style->text_font,
         style->text_size,
-        style->colors->text,
+        Color_copy(style->colors->text),
         style->text_style), Position_null(), false, buffer);
     Size size = Text_getSize(button->text);
     button->rect = SDL_CreateRect(position->x, position->y, size.width, size.height);
@@ -61,6 +61,8 @@ Button* Button_newf(const App* app, Position* position, ButtonStyle* style, void
     button->pressed = false;
     button->focused = false;
     button->parent = parent;
+
+    Position_destroy(position);
 
     return button;
 }
@@ -74,7 +76,7 @@ void Button_destroy(Button* button) {
 
 void Button_render(Button* button, SDL_Renderer* renderer) {
 
-    Text_setColor(button->text, button->style->colors->text);
+    Text_setColor(button->text, Color_copy(button->style->colors->text));
 
     Color* border = button->style->colors->border;
     Color* fill = button->style->colors->background;

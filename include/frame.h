@@ -13,9 +13,10 @@ struct Frame {
     FrameUpdateFunc func_update;
     FrameFocusFunc func_focus;
     FrameFocusFunc func_unfocus;
+    FrameDestroyFunc func_destroy;
 };
 
-Frame* Frame_new(void* element, FrameRenderFunc func_render,FrameUpdateFunc func_update, FrameFocusFunc func_focus, FrameFocusFunc func_unfocus);
+Frame* Frame_new(void* element, FrameRenderFunc func_render,FrameUpdateFunc func_update, FrameFocusFunc func_focus, FrameFocusFunc func_unfocus, FrameDestroyFunc func_destroy);
 void Frame_destroy(Frame* frame);
 void Frame_render(Frame* frame, SDL_Renderer* renderer);
 void Frame_update(Frame* frame);

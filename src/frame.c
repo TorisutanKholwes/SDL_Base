@@ -6,7 +6,7 @@
 #include "logger.h"
 #include "utils.h"
 
-Frame* Frame_new(void* element, FrameRenderFunc func_render,FrameUpdateFunc func_update, FrameFocusFunc func_focus, FrameFocusFunc func_unfocus) {
+Frame* Frame_new(void* element, FrameRenderFunc func_render,FrameUpdateFunc func_update, FrameFocusFunc func_focus, FrameFocusFunc func_unfocus, FrameDestroyFunc func_destroy) {
     Frame* frame = calloc(1, sizeof(Frame));
     if (!frame) {
         error("Frame_new: failed to allocate memory for Frame");
@@ -18,12 +18,16 @@ Frame* Frame_new(void* element, FrameRenderFunc func_render,FrameUpdateFunc func
     frame->func_render = func_render;
     frame->func_focus = func_focus;
     frame->func_unfocus = func_unfocus;
+    frame->func_destroy = func_destroy;
 
     return frame;
 }
 
 void Frame_destroy(Frame* frame) {
     if (!frame) return;
+    if (frame->func_destroy && frame->element) {
+        frame->func_destroy(frame->element);
+    }
     safe_free((void**)&frame);
 }
 

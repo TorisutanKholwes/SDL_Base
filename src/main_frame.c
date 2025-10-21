@@ -44,6 +44,12 @@ MainFrame* MainFrame_new(App* app) {
 }
 
 static void MainFrame_addElements(MainFrame* self, App* app) {
+    ListIterator* it = ListIterator_new(self->elements);
+    while (ListIterator_hasNext(it)) {
+        Element* element = ListIterator_next(it);
+        Element_destroy(element);
+    }
+    ListIterator_destroy(it);
     List_clear(self->elements);
     int w, h;
     SDL_GetWindowSize(app->window, &w, &h);
@@ -87,6 +93,12 @@ void MainFrame_destroy(MainFrame* self) {
     if (!self) return;
 
     if (self->elements) {
+        ListIterator* it = ListIterator_new(self->elements);
+        while (ListIterator_hasNext(it)) {
+            Element* element = ListIterator_next(it);
+            Element_destroy(element);
+        }
+        ListIterator_destroy(it);
         List_destroy(self->elements);
     }
 
@@ -118,7 +130,7 @@ static void MainFrame_goToNextPage(Input* input, SDL_Event* evt, void* data) {
     if (button && button->parent) {
         MainFrame* self = button->parent;
         SecondFrame* second = SecondFrame_new(self->app);
-        App_addFrame(self->app, Frame_new(second, SecondFrame_render, SecondFrame_update, SecondFrame_focus, SecondFrame_unfocus));
+        App_addFrame(self->app, Frame_new(second, SecondFrame_render, SecondFrame_update, SecondFrame_focus, SecondFrame_unfocus, (FrameDestroyFunc) SecondFrame_destroy));
     }
 }
 

@@ -111,7 +111,8 @@ void Element_destroy(Element* element) {
             break;
     }
 
-    free(element);
+    safe_free((void**)&element->id);
+    safe_free((void**)&element);
 }
 
 
@@ -245,6 +246,7 @@ Element* Element_getById(List* list, const char* id) {
     while (ListIterator_hasNext(iterator)) {
         Element* element = ListIterator_next(iterator);
         if (String_equals(element->id, id)) {
+            ListIterator_destroy(iterator);
             return element;
         }
     }

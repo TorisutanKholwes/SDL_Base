@@ -50,7 +50,6 @@ void App_destroy(App* app) {
     if (!app) return;
     Input_destroy(app->input);
     List_destroy(app->stack);
-    ResourceManager_destroy(app->manager);
     Theme_destroy(app->theme);
     safe_free((void**)&app);
 }
@@ -65,25 +64,27 @@ void App_quit(const App *app) {
     SDL_Quit();
 }
 
-void App_addFrame(const App* app, Frame* frame) {
+void App_addFrame(App* app, Frame* frame) {
     if (List_size(app->stack) > 0) {
         Frame* curr = App_getCurrentFrame(app);
         if (curr && curr->func_unfocus) {
             curr->func_unfocus(curr, curr->element);
         }
     }
+    app->frameChanged = true;
     List_push(app->stack, frame);
     if (frame->func_focus) {
         frame->func_focus(frame, frame->element);
     }
 }
 
-void App_frameBack(const App* app) {
+void App_frameBack(App* app) {
     Frame* frame = List_popLast(app->stack);
-    if (frame->func_unfocus) {
+    if (frame && frame->func_unfocus) {
         frame->func_unfocus(frame, frame->element);
     }
-    //Frame_destroy(frame);
+    Frame_destroy(frame);
+    app->frameChanged = true;
     Frame* curr = App_getCurrentFrame(app);
     if (curr && curr->func_focus) {
         curr->func_focus(curr, curr->element);

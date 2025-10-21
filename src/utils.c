@@ -26,6 +26,10 @@ bool Position_equals(const Position* a, const Position* b) {
     return (a->x == b->x) && (a->y == b->y);
 }
 
+bool Position_isNull(const Position* pos) {
+    return pos == NULL || pos->x < 0 || pos->y < 0;
+}
+
 void safe_free(void** ptr) {
     if (ptr && *ptr) {
         free(*ptr);
@@ -125,6 +129,11 @@ Color* Color_hsv(float h, float s, float v) {
 void Color_destroy(Color* color) {
     if (!color) return;
     safe_free((void**)&color);
+}
+
+Color* Color_copy(Color* color) {
+    if (!color) return NULL;
+    return Color_rgba(color->r, color->g, color->b, color->a);
 }
 
 SDL_Color Color_toSDLColor(Color* color) {

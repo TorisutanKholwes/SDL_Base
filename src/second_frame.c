@@ -46,6 +46,12 @@ SecondFrame* SecondFrame_new(App* app) {
 }
 
 static void SecondFrame_addElements(SecondFrame* self) {
+    ListIterator* it = ListIterator_new(self->elements);
+    while (ListIterator_hasNext(it)) {
+        Element* element = ListIterator_next(it);
+        Element_destroy(element);
+    }
+    ListIterator_destroy(it);
     List_clear(self->elements);
     int w, h;
     SDL_GetWindowSize(self->app->window, &w, &h);
@@ -77,7 +83,21 @@ void SecondFrame_destroy(SecondFrame* self) {
     if (!self) return;
 
     if (self->elements) {
+        ListIterator* it = ListIterator_new(self->elements);
+        while (ListIterator_hasNext(it)) {
+            Element* element = ListIterator_next(it);
+            Element_destroy(element);
+        }
+        ListIterator_destroy(it);
         List_destroy(self->elements);
+    }
+
+    if (self->numbers) {
+        List_destroy(self->numbers);
+    }
+
+    if (self->timer) {
+        Timer_destroy(self->timer);
     }
 
     safe_free((void**)&self);
@@ -99,7 +119,12 @@ void SecondFrame_render(Frame* _, SDL_Renderer* renderer, void* data) {
 
         Box* box = Box_new(50, num, 0, Position_new(55 * it->index, h - 150 - (Text_getSize(text).height / 2) - (num / 2)), COLOR_BLUE, NULL);
         Box_render(box, renderer);
+
+        Text_destroy(text);
+        Box_destroy(box);
     }
+    ListIterator_destroy(it);
+
 }
 
 void SecondFrame_update(Frame* _, void* data) {

@@ -18,12 +18,13 @@ struct Color {
 #define Position_null() Position_new(-1.0f, -1.0f)
 Position* Position_new(float x, float y);
 void Position_destroy(Position* pos);
-#define Position_isNull(pos) (Position_equals(pos, Position_null()) || (pos) == NULL)
+bool Position_isNull(const Position* pos);
 bool Position_equals(const Position* a, const Position* b);
 
 Color* Color_rgb(int r, int g, int b);
 Color* Color_rgba(int r, int g, int b, int a);
 Color* Color_hsv(float h, float s, float v);
+Color* Color_copy(Color* color);
 SDL_Color Color_toSDLColor(Color* color);
 void Color_destroy(Color* color);
 
