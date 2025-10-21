@@ -1,8 +1,8 @@
-cmake_minimum_required(VERSION 4.0)
+cmake_minimum_required(VERSION 3.22)
 project(SDLBase C)
 set(CMAKE_C_STANDARD 23)
 
-set(LIB_INSTALL_DIR "${CMAKE_SOURCE_DIR}/lib")
+set(LIB_INSTALL_DIR "${CMAKE_SOURCE_DIR}/libs")
 
 find_package(SDL3 QUIET)
 find_package(SDL3_image QUIET)
