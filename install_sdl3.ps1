@@ -16,13 +16,20 @@ $repos = @(
 )
 
 foreach ($repo in $repos) {
-    $name = Split-Path $repo -LeafBase
+    $name = [System.IO.Path]::GetFileNameWithoutExtension($repo)
     $srcDir = Join-Path $InstallDir $name
     $buildDir = Join-Path $srcDir "build"
 
     Write-Host "`n=== Installing $name ==="
     if (-not (Test-Path $srcDir)) {
-        git clone $repo $srcDir
+        git clone --recurse-submodules $repo $srcDir
+        if ($LASTEXITCODE -ne 0) {
+            throw "Git clone failed for $name"
+        }
+    } else {
+        Push-Location $srcDir
+        git submodule update --init --recursive
+        Pop-Location
     }
 
     if (-not (Test-Path $buildDir)) {
