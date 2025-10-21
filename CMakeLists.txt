@@ -13,6 +13,7 @@ if(NOT SDL3_FOUND OR NOT SDL3_image_FOUND OR NOT SDL3_mixer_FOUND OR NOT SDL3_tt
     message(WARNING "SDL3 or one of its extensions not found. Attempting local installation in ${LIB_INSTALL_DIR}...")
 
     if (WIN32)
+        message(STATUS "Installing SDL3 and extensions on Windows using PowerShell script.")
         set(INSTALL_SCRIPT "${CMAKE_SOURCE_DIR}/install_sdl3.ps1")
         if(NOT EXISTS "${INSTALL_SCRIPT}")
             message(FATAL_ERROR "Missing PowerShell install script: ${INSTALL_SCRIPT}")
@@ -28,6 +29,7 @@ if(NOT SDL3_FOUND OR NOT SDL3_image_FOUND OR NOT SDL3_mixer_FOUND OR NOT SDL3_tt
             message(FATAL_ERROR "PowerShell SDL3 installation script failed (exit code ${ps_result}).")
         endif()
     elseif (UNIX)
+        message(STATUS "Installing SDL3 and extensions on Unix using Bash script.")
         set(INSTALL_SCRIPT "${CMAKE_SOURCE_DIR}/install_sdl3.sh")
         if(NOT EXISTS "${INSTALL_SCRIPT}")
             message(FATAL_ERROR "Missing Bash install script: ${INSTALL_SCRIPT}")
@@ -44,11 +46,19 @@ if(NOT SDL3_FOUND OR NOT SDL3_image_FOUND OR NOT SDL3_mixer_FOUND OR NOT SDL3_tt
         endif()
     endif ()
 
+    message(STATUS "Re-attempting to find SDL3 and extensions after installation...")
+
     list(APPEND CMAKE_PREFIX_PATH "${LIB_INSTALL_DIR}")
     find_package(SDL3 REQUIRED)
     find_package(SDL3_image REQUIRED)
     find_package(SDL3_mixer REQUIRED)
     find_package(SDL3_ttf REQUIRED)
+
+    if (SDL3_FOUND AND SDL3_image_FOUND AND SDL3_mixer_FOUND AND SDL3_ttf_FOUND)
+        message(STATUS "SDL3 and all extensions successfully installed and found. If your encounter issues with includes, try clearing caches of your IDE and restart project.")
+    else ()
+        message(FATAL_ERROR "Failed to find SDL3 or one of its extensions after installation.")
+    endif ()
 else ()
     message(STATUS "SDL3 and all extensions already installed.")
 endif ()
