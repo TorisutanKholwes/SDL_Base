@@ -73,7 +73,12 @@ int main() {
     MainFrame* mainFrame = MainFrame_new(app);
     App_addFrame(app, Frame_new(mainFrame, MainFrame_render, MainFrame_update, MainFrame_focus, MainFrame_unfocus, (FrameDestroyFunc)MainFrame_destroy));
 
+
+    Uint32 frame_delay = 1000 / FRAME_RATE;
+
     while (app->running) {
+        Uint32 frame_start = SDL_GetTicks();
+
         Input_update(app->input);
 
         if (app->input->quit) {
@@ -106,7 +111,10 @@ int main() {
 
         SDL_RenderPresent(app->renderer);
 
-        SDL_Delay(16); // Roughly 60 FPS
+        Uint32 frame_time = SDL_GetTicks() - frame_start;
+        if (frame_delay > frame_time) {
+            SDL_Delay(frame_delay - frame_time);
+        }
     }
 
     while (List_size(app->stack) > 0) {
