@@ -64,9 +64,16 @@ void App_quit(const App *app) {
     SDL_Quit();
 }
 
+static void App_logFrameChange(Frame* from, Frame* to) {
+    const char* from_title = from ? from->title ? from->title : "Unknow" : "None";
+    const char* to_title = to ? to->title ? to->title : "Unknow" : "None";
+    log_message(LOG_LEVEL_DEBUG, "Frame changed from '%s' to '%s'", from_title, to_title);
+}
+
 void App_addFrame(App* app, Frame* frame) {
+    Frame* curr = NULL;
     if (List_size(app->stack) > 0) {
-        Frame* curr = App_getCurrentFrame(app);
+        curr = App_getCurrentFrame(app);
         if (curr && curr->func_unfocus) {
             curr->func_unfocus(curr, curr->element);
         }
@@ -76,6 +83,7 @@ void App_addFrame(App* app, Frame* frame) {
     if (frame->func_focus) {
         frame->func_focus(frame, frame->element);
     }
+    App_logFrameChange(curr, frame);
 }
 
 void App_frameBack(App* app) {
@@ -83,12 +91,13 @@ void App_frameBack(App* app) {
     if (frame && frame->func_unfocus) {
         frame->func_unfocus(frame, frame->element);
     }
-    Frame_destroy(frame);
     app->frameChanged = true;
     Frame* curr = App_getCurrentFrame(app);
     if (curr && curr->func_focus) {
         curr->func_focus(curr, curr->element);
     }
+    App_logFrameChange(frame, curr);
+    Frame_destroy(frame);
 }
 
 Frame* App_getCurrentFrame(const App* app) {

@@ -67,4 +67,4 @@ typedef void (*FrameFocusFunc)(Frame* frame, void* data);
 typedef void (*FrameUpdateFunc)(Frame* frame, void* data);
 typedef void (*FrameRenderFunc)(Frame* frame, SDL_Renderer* renderer, void* data);
 
-typedef void (*FrameDestroyFunc)(void* data);
+typedef void (*DestroyFunc)(void* data);
