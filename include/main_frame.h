@@ -18,3 +18,5 @@ void MainFrame_render(Frame* frame, SDL_Renderer* renderer, void* data);
 void MainFrame_update(Frame* frame, void* data);
 void MainFrame_focus(Frame* frame, void* data);
 void MainFrame_unfocus(Frame* frame, void* data);
+
+Frame* MainFrame_getFrame(MainFrame* self);

@@ -8,6 +8,7 @@
 #include "button.h"
 #include "color.h"
 #include "element.h"
+#include "frame.h"
 #include "geometry.h"
 #include "input.h"
 #include "input_box.h"
@@ -173,6 +174,12 @@ static void SecondFrame_onButtonClick(Input* input, SDL_Event* evt, void* data) 
             InputBox_setString(input_box, "");
         }
     }
+}
+
+Frame* SecondFrame_getFrame(SecondFrame* self) {
+    Frame* frame = Frame_new(self, SecondFrame_render, SecondFrame_update, SecondFrame_focus, SecondFrame_unfocus, (DestroyFunc) SecondFrame_destroy);
+    Frame_setTitle(frame, "SecondFrame");
+    return frame;
 }
 
 static void SecondFrame_onRuneB(Input* input, SDL_Event* evt, void* data) {

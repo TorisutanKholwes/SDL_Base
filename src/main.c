@@ -70,9 +70,7 @@ int main() {
 
     app->theme = Theme_default(app->manager);
 
-    MainFrame* mainFrame = MainFrame_new(app);
-    App_addFrame(app, Frame_new(mainFrame, MainFrame_render, MainFrame_update, MainFrame_focus, MainFrame_unfocus, (FrameDestroyFunc)MainFrame_destroy));
-
+    App_addFrame(app, MainFrame_getFrame(MainFrame_new(app)));
 
     Uint32 frame_delay = 1000 / FRAME_RATE;
 

@@ -11,6 +11,7 @@
 #include "frame.h"
 #include "geometry.h"
 #include "input.h"
+#include "layout_test_frame.h"
 #include "logger.h"
 #include "list.h"
 #include "resource_manager.h"
@@ -22,6 +23,7 @@
 static void MainFrame_addElements(MainFrame* self, App* app);
 static void MainFrame_goToNextPage(Input* input, SDL_Event* evt, void* data);
 static void MainFrame_onWindowResized(Input* input, SDL_Event* evt, void* data);
+static void MainFrame_onRuneN(Input* input, SDL_Event* evt, void* data);
 
 MainFrame* MainFrame_new(App* app) {
     MainFrame* self = calloc(1, sizeof(MainFrame));
@@ -38,7 +40,6 @@ MainFrame* MainFrame_new(App* app) {
         return NULL;
     }
     MainFrame_addElements(self, app);
-    Input_addEventHandler(app->input, SDL_EVENT_WINDOW_RESIZED, MainFrame_onWindowResized, self);
 
     return self;
 }
@@ -118,11 +119,23 @@ void MainFrame_update(Frame* _, void* data) {
 void MainFrame_focus(Frame* _, void* data) {
     MainFrame* self = data;
     Element_focusList(self->elements);
+
+    Input_addEventHandler(self->app->input, SDL_EVENT_WINDOW_RESIZED, MainFrame_onWindowResized, self);
+    Input_addKeyEventHandler(self->app->input, SDLK_N, MainFrame_onRuneN, self);
 }
 
 void MainFrame_unfocus(Frame* _, void* data) {
     MainFrame* self = data;
     Element_unfocusList(self->elements);
+
+    Input_removeOneEventHandler(self->app->input, SDL_EVENT_WINDOW_RESIZED, self);
+    Input_removeOneKeyEventHandler(self->app->input, SDLK_N, self);
+}
+
+Frame* MainFrame_getFrame(MainFrame* self) {
+    Frame* frame = Frame_new(self, MainFrame_render, MainFrame_update, MainFrame_focus, MainFrame_unfocus, (DestroyFunc) MainFrame_destroy);
+    Frame_setTitle(frame, "MainFrame");
+    return frame;
 }
 
 static void MainFrame_goToNextPage(Input* input, SDL_Event* evt, void* data) {
@@ -130,11 +143,16 @@ static void MainFrame_goToNextPage(Input* input, SDL_Event* evt, void* data) {
     if (button && button->parent) {
         MainFrame* self = button->parent;
         SecondFrame* second = SecondFrame_new(self->app);
-        App_addFrame(self->app, Frame_new(second, SecondFrame_render, SecondFrame_update, SecondFrame_focus, SecondFrame_unfocus, (FrameDestroyFunc) SecondFrame_destroy));
+        App_addFrame(self->app, SecondFrame_getFrame(second));
     }
 }
 
 static void MainFrame_onWindowResized(Input* input, SDL_Event* evt, void* data) {
     MainFrame* self = data;
     MainFrame_addElements(self, self->app);
+}
+
+static void MainFrame_onRuneN(Input* input, SDL_Event* evt, void* data) {
+    MainFrame* self = data;
+    App_addFrame(self->app, LayoutTestFrame_getFrame(LayoutTestFrame_new(self->app)));
 }
