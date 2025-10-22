@@ -36,11 +36,11 @@ void List_destroy(List *list) {
     safe_free((void **) &list);
 }
 
-void List_destroyWitValues(List* list, void (*destroyValueFunc)(void* value)) {
+void List_destroyWitValues(List* list, DestroyFunc destroy_func) {
     ListNode *node = list->head->next;
     while (node != list->head) {
-        if (destroyValueFunc) {
-            destroyValueFunc(node->value);
+        if (destroy_func) {
+            destroy_func(node->value);
         }
         node = node->next;
     }
