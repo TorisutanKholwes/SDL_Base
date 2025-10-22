@@ -54,7 +54,9 @@ Button* Button_newf(const App* app, Position* position, ButtonStyle* style, void
         Color_copy(style->colors->text),
         style->text_style), Position_null(), false, buffer);
     Size size = Text_getSize(button->text);
-    button->rect = SDL_CreateRect(position->x, position->y, size.width, size.height);
+    const float x = position && !Position_isNull(position) ? position->x : 0;
+    const float y = position && !Position_isNull(position) ? position->y : 0;
+    button->rect = SDL_CreateRect(x, y, size.width, size.height);
     button->style = style;
     button->input = app->input;
     button->hovered = false;
@@ -132,6 +134,18 @@ void Button_setStringf(Button* button, const char* format, ...) {
     vsnprintf(buffer, sizeof(buffer), format, args);
     va_end(args);
     Text_setString(button->text, buffer);
+}
+
+void Button_setPosition(Button* button, float x, float y) {
+    if (!button) return;
+    button->rect.x = x;
+    button->rect.y = y;
+}
+
+void Button_setSize(Button* button, float w, float h) {
+    if (!button) return;
+    button->rect.w = w;
+    button->rect.h = h;
 }
 
 void Button_setParent(Button* button, void* parent) {

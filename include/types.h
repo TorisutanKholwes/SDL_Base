@@ -51,9 +51,16 @@ typedef struct Polygon Polygon;
 
 typedef struct Timer Timer;
 
+typedef struct FlexContainer FlexContainer;
+typedef struct FlexItem FlexItem;
+typedef enum FlexDirection FlexDirection;
+typedef enum FlexJustify FlexJustify;
+typedef enum FlexAlign FlexAlign;
+
 // Frames
 typedef struct MainFrame MainFrame;
 typedef struct SecondFrame SecondFrame;
+typedef struct LayoutTestFrame LayoutTestFrame;
 
 // Structure who's not used as a pointer elsewhere
 typedef struct {
