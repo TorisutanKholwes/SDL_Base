@@ -14,6 +14,8 @@ struct Text {
     Position* position;
     TextStyle* style;
     bool fromCenter;
+    Size size;
+    bool custom_size;
 };
 
 Text* Text_new(SDL_Renderer* renderer, TextStyle* style, Position* position, bool fromCenter, const char* str);
@@ -25,3 +27,4 @@ void Text_setColor(Text* self, Color* color);
 void Text_setPosition(Text* self, float x, float y);
 void Text_render(Text* self);
 Size Text_getSize(Text* self);
+void Text_setSize(Text* self, float width, float height);

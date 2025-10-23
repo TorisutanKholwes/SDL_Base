@@ -129,6 +129,14 @@ void refreshTexture(Text* self) {
     }
 
     self->texture = SDL_CreateTextureFromSurface(self->renderer, surface);
+
+    if (!self->custom_size) {
+        float w, h;
+        SDL_GetTextureSize(self->texture, &w, &h);
+        self->size.width = w;
+        self->size.height = h;
+    }
+
     if (!self->texture) {
         error("Failed to create text texture.");
         SDL_DestroySurface(surface);
@@ -145,26 +153,29 @@ void Text_render(Text* self) {
         return;
     }
 
-    float w, h;
-    SDL_GetTextureSize(self->texture, &w, &h);
     float x, y;
     if (self->fromCenter) {
-        x = self->position->x - (w / 2);
-        y = self->position->y - (h / 2);
+        x = self->position->x - (self->size.width / 2);
+        y = self->position->y - (self->size.height / 2);
     } else {
         x = self->position->x;
         y = self->position->y;
     }
 
-    SDL_FRect dst = { x, y, w, h };
+    SDL_FRect dst = { x, y, self->size.width, self->size.height };
     if (!SDL_RenderTexture(self->renderer, self->texture, NULL, &dst)) {
         error("Failed to render text texture : %s", SDL_GetError());
     }
 }
 
 Size Text_getSize(Text* self) {
-    Size size = { 0 };
-    if (!self || !self->texture) return size;
-    SDL_GetTextureSize(self->texture, &size.width, &size.height);
-    return size;
+    if (!self) return (Size){-1, -1};
+    return self->size;
+}
+
+void Text_setSize(Text* self, float width, float height) {
+    if (!self) return;
+    self->custom_size = true;
+    self->size.width = width;
+    self->size.height = height;
 }

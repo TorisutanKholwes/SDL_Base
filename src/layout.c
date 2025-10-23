@@ -108,6 +108,9 @@ static void FlexItem_setElementSize(FlexItem* item, float width, float height) {
         case ELEMENT_TYPE_BUTTON:
             Button_setSize(element->data.button, width, height);
             break;
+        case ELEMENT_TYPE_TEXT:
+            Text_setSize(element->data.text, width, height);
+            break;
         case ELEMENT_TYPE_INPUT: {
             InputBox* input = element->data.inputbox;
             input->rect.w = width;
