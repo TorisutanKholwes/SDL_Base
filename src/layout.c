@@ -259,8 +259,6 @@ void FlexContainer_layout(FlexContainer *container) {
         it = ListIterator_new(container->items);
         while (ListIterator_hasNext(it)) {
             FlexItem *item = ListIterator_next(it);
-            log_message(LOG_LEVEL_DEBUG, "Before ; Type : %s ; width = %.2f ; height = %.2f",
-                    ElementType_toString(item->element->type), item->width, item->height);
             if (item->flex_grow > 0) {
                 float extra = (available_space * item->flex_grow) / total_flex_grow;
                 if (is_row) {
@@ -344,9 +342,6 @@ void FlexContainer_layout(FlexContainer *container) {
                 break;
         }
 
-        log_message(LOG_LEVEL_DEBUG, "After ; Type : %s ; width = %.2f ; height = %.2f",
-                    ElementType_toString(item->element->type), item->width, item->height);
-
         FlexItem_setElementSize(item, item->width, item->height);
 
         float x, y;
@@ -357,8 +352,6 @@ void FlexContainer_layout(FlexContainer *container) {
             x = container->x + cross_pos;
             y = container->y + (is_reverse ? container->height - current_main - item->height : current_main);
         }
-        log_message(LOG_LEVEL_DEBUG, "Type : %s ; x = %.2f ; y = %.2f", ElementType_toString(item->element->type), x,
-                    y);
 
         FlexItem_setElementPosition(item, x, y);
 
