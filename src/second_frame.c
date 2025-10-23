@@ -83,15 +83,7 @@ static void SecondFrame_addElements(SecondFrame* self) {
 void SecondFrame_destroy(SecondFrame* self) {
     if (!self) return;
 
-    if (self->elements) {
-        ListIterator* it = ListIterator_new(self->elements);
-        while (ListIterator_hasNext(it)) {
-            Element* element = ListIterator_next(it);
-            Element_destroy(element);
-        }
-        ListIterator_destroy(it);
-        List_destroy(self->elements);
-    }
+    Element_destroyList(self->elements);
 
     if (self->numbers) {
         List_destroy(self->numbers);

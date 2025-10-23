@@ -115,6 +115,11 @@ void Element_destroy(Element* element) {
     safe_free((void**)&element);
 }
 
+void Element_destroyList(List* list) {
+    if (!list) return;
+    List_destroyWitValues(list, (DestroyFunc) Element_destroy);
+}
+
 
 void Element_render(Element* element, SDL_Renderer* renderer) {
     if (!element || !renderer) return;

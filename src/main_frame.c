@@ -93,15 +93,7 @@ static void MainFrame_addElements(MainFrame* self, App* app) {
 void MainFrame_destroy(MainFrame* self) {
     if (!self) return;
 
-    if (self->elements) {
-        ListIterator* it = ListIterator_new(self->elements);
-        while (ListIterator_hasNext(it)) {
-            Element* element = ListIterator_next(it);
-            Element_destroy(element);
-        }
-        ListIterator_destroy(it);
-        List_destroy(self->elements);
-    }
+    Element_destroyList(self->elements);
 
     safe_free((void**)&self);
 }

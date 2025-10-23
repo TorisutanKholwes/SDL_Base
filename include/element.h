@@ -38,6 +38,7 @@ Element* Element_fromCircle(Circle* circle, const char* id);
 Element* Element_fromPolygon(Polygon* polygon, const char* id);
 
 void Element_destroy(Element* element);
+void Element_destroyList(List* list);
 
 void Element_render(Element* element, SDL_Renderer* renderer);
 void Element_update(Element* element);
