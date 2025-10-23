@@ -68,10 +68,10 @@ typedef struct {
 } Size;
 
 // Types of func
-typedef void (*EventHandlerFunc)(Input* input, SDL_Event* evt, void* data);
+typedef void (*EventHandlerFunc)(Input* input, SDL_Event* event, void* data);
 
-typedef void (*FrameFocusFunc)(Frame* frame, void* data);
-typedef void (*FrameUpdateFunc)(Frame* frame, void* data);
-typedef void (*FrameRenderFunc)(Frame* frame, SDL_Renderer* renderer, void* data);
+typedef void (*FrameFocusFunc)(void* data);
+typedef void (*FrameUpdateFunc)(void* data);
+typedef void (*FrameRenderFunc)(SDL_Renderer* renderer, void* data);
 
 typedef void (*DestroyFunc)(void* data);

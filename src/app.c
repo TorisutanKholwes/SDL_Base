@@ -75,13 +75,13 @@ void App_addFrame(App* app, Frame* frame) {
     if (List_size(app->stack) > 0) {
         curr = App_getCurrentFrame(app);
         if (curr && curr->func_unfocus) {
-            curr->func_unfocus(curr, curr->element);
+            curr->func_unfocus(curr->element);
         }
     }
     app->frameChanged = true;
     List_push(app->stack, frame);
     if (frame->func_focus) {
-        frame->func_focus(frame, frame->element);
+        frame->func_focus(frame->element);
     }
     App_logFrameChange(curr, frame);
 }
@@ -89,12 +89,12 @@ void App_addFrame(App* app, Frame* frame) {
 void App_frameBack(App* app) {
     Frame* frame = List_popLast(app->stack);
     if (frame && frame->func_unfocus) {
-        frame->func_unfocus(frame, frame->element);
+        frame->func_unfocus(frame->element);
     }
     app->frameChanged = true;
     Frame* curr = App_getCurrentFrame(app);
     if (curr && curr->func_focus) {
-        curr->func_focus(curr, curr->element);
+        curr->func_focus(curr->element);
     }
     App_logFrameChange(frame, curr);
     Frame_destroy(frame);

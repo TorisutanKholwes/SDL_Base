@@ -16,9 +16,9 @@ struct SecondFrame {
 
 SecondFrame* SecondFrame_new(App* app);
 void SecondFrame_destroy(SecondFrame* self);
-void SecondFrame_render(Frame* frame, SDL_Renderer* renderer, void* data);
-void SecondFrame_update(Frame* frame, void* data);
-void SecondFrame_focus(Frame* frame, void* data);
-void SecondFrame_unfocus(Frame* frame, void* data);
+void SecondFrame_render(SDL_Renderer* renderer, SecondFrame* self);
+void SecondFrame_update(SecondFrame* self);
+void SecondFrame_focus(SecondFrame* self);
+void SecondFrame_unfocus(SecondFrame* self);
 
 Frame* SecondFrame_getFrame(SecondFrame* self);

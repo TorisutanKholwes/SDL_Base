@@ -104,8 +104,7 @@ void SecondFrame_destroy(SecondFrame* self) {
     safe_free((void**)&self);
 }
 
-void SecondFrame_render(Frame* _, SDL_Renderer* renderer, void* data) {
-    SecondFrame* self = data;
+void SecondFrame_render(SDL_Renderer* renderer, SecondFrame* self) {
     Element_renderList(self->elements, renderer);
     int w, h;
     SDL_GetWindowSize(self->app->window, &w, &h);
@@ -128,8 +127,7 @@ void SecondFrame_render(Frame* _, SDL_Renderer* renderer, void* data) {
 
 }
 
-void SecondFrame_update(Frame* _, void* data) {
-    SecondFrame* self = data;
+void SecondFrame_update(SecondFrame* self) {
     Element_updateList(self->elements);
 
     if (self->app->input->esc) {
@@ -137,8 +135,7 @@ void SecondFrame_update(Frame* _, void* data) {
     }
 }
 
-void SecondFrame_focus(Frame* _, void* data) {
-    SecondFrame* self = data;
+void SecondFrame_focus(SecondFrame* self) {
     Element_focusList(self->elements);
 
     Input_addKeyEventHandler(self->app->input, SDLK_B, SecondFrame_onRuneB, self);
@@ -146,13 +143,23 @@ void SecondFrame_focus(Frame* _, void* data) {
     Input_addKeyEventHandler(self->app->input, SDLK_M, SecondFrame_onRuneM, self);
 }
 
-void SecondFrame_unfocus(Frame* _, void* data) {
-    SecondFrame* self = data;
+void SecondFrame_unfocus(SecondFrame* self) {
     Element_unfocusList(self->elements);
 
     Input_removeOneKeyEventHandler(self->app->input, SDLK_B, self);
     Input_removeOneKeyEventHandler(self->app->input, SDLK_Q, self);
     Input_removeOneKeyEventHandler(self->app->input, SDLK_M, self);
+}
+
+Frame* SecondFrame_getFrame(SecondFrame* self) {
+    Frame* frame = Frame_new(self,
+        (FrameRenderFunc) SecondFrame_render,
+        (FrameUpdateFunc) SecondFrame_update,
+        (FrameFocusFunc) SecondFrame_focus,
+        (FrameFocusFunc) SecondFrame_unfocus,
+        (DestroyFunc) SecondFrame_destroy);
+    Frame_setTitle(frame, "SecondFrame");
+    return frame;
 }
 
 static void SecondFrame_onButtonClick(Input* input, SDL_Event* evt, void* data) {
@@ -174,12 +181,6 @@ static void SecondFrame_onButtonClick(Input* input, SDL_Event* evt, void* data) 
             InputBox_setString(input_box, "");
         }
     }
-}
-
-Frame* SecondFrame_getFrame(SecondFrame* self) {
-    Frame* frame = Frame_new(self, SecondFrame_render, SecondFrame_update, SecondFrame_focus, SecondFrame_unfocus, (DestroyFunc) SecondFrame_destroy);
-    Frame_setTitle(frame, "SecondFrame");
-    return frame;
 }
 
 static void SecondFrame_onRuneB(Input* input, SDL_Event* evt, void* data) {

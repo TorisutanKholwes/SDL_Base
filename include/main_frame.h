@@ -14,9 +14,9 @@ struct MainFrame {
 
 MainFrame* MainFrame_new(App* app);
 void MainFrame_destroy(MainFrame* self);
-void MainFrame_render(Frame* frame, SDL_Renderer* renderer, void* data);
-void MainFrame_update(Frame* frame, void* data);
-void MainFrame_focus(Frame* frame, void* data);
-void MainFrame_unfocus(Frame* frame, void* data);
+void MainFrame_render(SDL_Renderer* renderer, MainFrame* self);
+void MainFrame_update(MainFrame* self);
+void MainFrame_focus(MainFrame* self);
+void MainFrame_unfocus(MainFrame* self);
 
 Frame* MainFrame_getFrame(MainFrame* self);

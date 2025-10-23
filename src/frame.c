@@ -34,12 +34,12 @@ void Frame_destroy(Frame* frame) {
 
 void Frame_render(Frame* frame, SDL_Renderer* renderer) {
     if (!frame || !frame->func_render) return;
-    frame->func_render(frame, renderer, frame->element);
+    frame->func_render(renderer, frame->element);
 }
 
 void Frame_update(Frame* frame) {
     if (!frame || !frame->func_update) return;
-    frame->func_update(frame, frame->element);
+    frame->func_update(frame->element);
 }
 
 void Frame_setTitle(Frame* frame, const char* title) {

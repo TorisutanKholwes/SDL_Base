@@ -106,26 +106,22 @@ void MainFrame_destroy(MainFrame* self) {
     safe_free((void**)&self);
 }
 
-void MainFrame_render(Frame* _, SDL_Renderer* renderer, void* data) {
-    MainFrame* self = data;
+void MainFrame_render(SDL_Renderer* renderer, MainFrame* self) {
     Element_renderList(self->elements, renderer);
 }
 
-void MainFrame_update(Frame* _, void* data) {
-    MainFrame* self = data;
+void MainFrame_update(MainFrame* self) {
     Element_updateList(self->elements);
 }
 
-void MainFrame_focus(Frame* _, void* data) {
-    MainFrame* self = data;
+void MainFrame_focus(MainFrame* self) {
     Element_focusList(self->elements);
 
     Input_addEventHandler(self->app->input, SDL_EVENT_WINDOW_RESIZED, MainFrame_onWindowResized, self);
     Input_addKeyEventHandler(self->app->input, SDLK_N, MainFrame_onRuneN, self);
 }
 
-void MainFrame_unfocus(Frame* _, void* data) {
-    MainFrame* self = data;
+void MainFrame_unfocus(MainFrame* self) {
     Element_unfocusList(self->elements);
 
     Input_removeOneEventHandler(self->app->input, SDL_EVENT_WINDOW_RESIZED, self);
@@ -133,7 +129,12 @@ void MainFrame_unfocus(Frame* _, void* data) {
 }
 
 Frame* MainFrame_getFrame(MainFrame* self) {
-    Frame* frame = Frame_new(self, MainFrame_render, MainFrame_update, MainFrame_focus, MainFrame_unfocus, (DestroyFunc) MainFrame_destroy);
+    Frame* frame = Frame_new(self,
+        (FrameRenderFunc) MainFrame_render,
+        (FrameUpdateFunc) MainFrame_update,
+        (FrameFocusFunc) MainFrame_focus,
+        (FrameFocusFunc) MainFrame_unfocus,
+        (DestroyFunc) MainFrame_destroy);
     Frame_setTitle(frame, "MainFrame");
     return frame;
 }

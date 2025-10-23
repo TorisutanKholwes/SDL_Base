@@ -60,11 +60,11 @@ void LayoutTestFrame_destroy(LayoutTestFrame* self) {
     safe_free((void**)&self);
 }
 
-void LayoutTestFrame_render(Frame* frame, SDL_Renderer* renderer, LayoutTestFrame* self) {
+void LayoutTestFrame_render(SDL_Renderer* renderer, LayoutTestFrame* self) {
     Element_renderList(self->elements, renderer);
 }
 
-void LayoutTestFrame_update(Frame* frame, LayoutTestFrame* self) {
+void LayoutTestFrame_update(LayoutTestFrame* self) {
     Element_updateList(self->elements);
 
     if (self->app->input->esc) {
@@ -72,11 +72,11 @@ void LayoutTestFrame_update(Frame* frame, LayoutTestFrame* self) {
     }
 }
 
-void LayoutTestFrame_focus(Frame* frame, LayoutTestFrame* self) {
+void LayoutTestFrame_focus(LayoutTestFrame* self) {
     Element_focusList(self->elements);
 }
 
-void LayoutTestFrame_unfocus(Frame* frame, LayoutTestFrame* self) {
+void LayoutTestFrame_unfocus(LayoutTestFrame* self) {
     Element_unfocusList(self->elements);
 }
 
