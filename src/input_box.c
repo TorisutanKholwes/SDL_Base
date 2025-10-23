@@ -32,7 +32,7 @@ InputBox *InputBox_new(App *app, SDL_FRect rect, InputBoxStyle *style, void* par
                               style->text_size,
                               Color_copy(style->colors->text),
                               style->style),
-                              Position_null(), false, "");
+                              POSITION_NULL, false, "");
     self->focused = false;
     self->selected = false;
     self->parent = parent;

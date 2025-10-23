@@ -15,7 +15,7 @@ struct Color {
     int r, g, b, a;
 };
 
-#define Position_null() Position_new(-1.0f, -1.0f)
+#define POSITION_NULL Position_new(-1.0f, -1.0f)
 Position* Position_new(float x, float y);
 void Position_destroy(Position* pos);
 bool Position_isNull(const Position* pos);
@@ -30,6 +30,7 @@ void Color_destroy(Color* color);
 
 void safe_free(void** ptr);
 int init();
+#define SDL_RECT_NULL (SDL_FRect) { -1.0f, -1.0f, -1.0f, -1.0f }
 SDL_FRect SDL_CreateRect(float x, float y, float w, float h);
 void SDL_RenderStroke(SDL_Renderer* renderer, const SDL_FRect* rect, float thickness);
 

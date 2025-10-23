@@ -24,7 +24,7 @@ Button* Button_new(const App* app, Position* position, ButtonStyle* style, void*
         style->text_font,
         style->text_size,
         Color_copy(style->colors->text),
-        style->text_style), Position_null(), false, label);
+        style->text_style), POSITION_NULL, false, label);
     Size size = Text_getSize(button->text);
     button->rect = SDL_CreateRect(position->x, position->y, size.width, size.height);
     button->style = style;
@@ -52,7 +52,7 @@ Button* Button_newf(const App* app, Position* position, ButtonStyle* style, void
         style->text_font,
         style->text_size,
         Color_copy(style->colors->text),
-        style->text_style), Position_null(), false, buffer);
+        style->text_style), POSITION_NULL, false, buffer);
     Size size = Text_getSize(button->text);
     const float x = position && !Position_isNull(position) ? position->x : 0;
     const float y = position && !Position_isNull(position) ? position->y : 0;
