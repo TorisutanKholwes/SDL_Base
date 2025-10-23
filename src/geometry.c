@@ -7,7 +7,7 @@
 #include "logger.h"
 #include "utils.h"
 
-Box* Box_new(float width, float height, int border_size, Position* position, Color* background, Color* border_color) {
+Box* Box_new(float width, float height, int border_size, Position* position, Color* background, Color* border_color, bool center) {
     Box* self = calloc(1, sizeof(Box));
     if (!self) {
         error("Box_new: Failed to allocate memory for Box");
@@ -19,6 +19,7 @@ Box* Box_new(float width, float height, int border_size, Position* position, Col
     self->position = position;
     self->background = background;
     self->border_color = border_color;
+    self->center = center;
     return self;
 }
 
@@ -33,7 +34,8 @@ void Box_destroy(Box* self) {
 void Box_render(Box* self, SDL_Renderer* renderer) {
     if (!self || !renderer) return;
 
-    SDL_FRect rect = SDL_CreateRect(self->position->x, self->position->y, self->size.width, self->size.height);
+    SDL_FRect rect = self->center ? SDL_CreateRect(self->position->x, self->position->y, self->size.width, self->size.height) :
+                (SDL_FRect){ self->position->x, self->position->y, self->size.width, self->size.height };
 
     if (self->border_size > 0 && self->border_color) {
         Color* border = self->border_color;

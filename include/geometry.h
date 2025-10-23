@@ -13,9 +13,10 @@ struct Box {
     Position* position;
     Color* background;
     Color* border_color;
+    bool center;
 };
 
-Box* Box_new(float width, float height, int border_size, Position* position, Color* background, Color* border_color);
+Box* Box_new(float width, float height, int border_size, Position* position, Color* background, Color* border_color, bool center);
 void Box_destroy(Box* self);
 void Box_render(Box* self, SDL_Renderer* renderer);
 

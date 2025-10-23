@@ -57,7 +57,7 @@ static void SecondFrame_addElements(SecondFrame* self) {
     int w, h;
     SDL_GetWindowSize(self->app->window, &w, &h);
 
-    Box* box = Box_new(w, h - 100, 0, Position_new(0, 0), COLOR_BLACK, NULL);
+    Box* box = Box_new(w, h - 100, 0, Position_new(0, 0), COLOR_BLACK, NULL, false);
     List_push(self->elements, Element_fromBox(box, NULL));
 
     InputBox* input_box = InputBox_new(self->app,
@@ -118,7 +118,7 @@ void SecondFrame_render(Frame* _, SDL_Renderer* renderer, void* data) {
             Position_new(55 * it->index, h - 150), true, "%d", num);
         Text_render(text);
 
-        Box* box = Box_new(50, num, 0, Position_new(55 * it->index, h - 150 - (Text_getSize(text).height / 2) - (num / 2)), COLOR_BLUE, NULL);
+        Box* box = Box_new(50, num, 0, Position_new(55 * it->index, h - 150 - (Text_getSize(text).height / 2) - (num / 2)), COLOR_BLUE, NULL, true);
         Box_render(box, renderer);
 
         Text_destroy(text);
