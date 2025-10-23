@@ -14,43 +14,43 @@
 #include "text.h"
 #include "utils.h"
 
-static void FlexItem_getElementSize(FlexItem* item, float* width, float* height) {
+static void FlexItem_getElementSize(FlexItem *item, float *width, float *height) {
     if (!item || !item->element) {
         *width = 0;
         *height = 0;
         return;
     }
 
-    Element* element = item->element;
+    Element *element = item->element;
     switch (element->type) {
         case ELEMENT_TYPE_BUTTON: {
-            Button* button = element->data.button;
-            EdgeInsets* paddings = button->style->paddings;
+            Button *button = element->data.button;
+            EdgeInsets *paddings = button->style->paddings;
             *width = button->rect.w + (button->style->border_width * 2) + (paddings->left + paddings->right);
             *height = button->rect.h + (button->style->border_width * 2) + (paddings->top + paddings->bottom);
             break;
         }
         case ELEMENT_TYPE_TEXT: {
-            Text* text = element->data.text;
+            Text *text = element->data.text;
             Size size = Text_getSize(text);
             *width = size.width;
             *height = size.height;
             break;
         }
         case ELEMENT_TYPE_INPUT: {
-            InputBox* input = element->data.inputbox;
+            InputBox *input = element->data.inputbox;
             *width = input->rect.w;
             *height = input->rect.h;
             break;
         }
         case ELEMENT_TYPE_BOX: {
-            Box* box = element->data.box;
+            Box *box = element->data.box;
             *width = box->size.width;
             *height = box->size.height;
             break;
         }
         case ELEMENT_TYPE_CIRCLE: {
-            Circle* circle = element->data.circle;
+            Circle *circle = element->data.circle;
             *width = circle->radius * 2;
             *height = circle->radius * 2;
             break;
@@ -62,10 +62,10 @@ static void FlexItem_getElementSize(FlexItem* item, float* width, float* height)
     }
 }
 
-static void FlexItem_setElementPosition(FlexItem* item, float x, float y) {
+static void FlexItem_setElementPosition(FlexItem *item, float x, float y) {
     if (!item || !item->element) return;
 
-    Element* element = item->element;
+    Element *element = item->element;
     switch (element->type) {
         case ELEMENT_TYPE_BUTTON:
             Button_setPosition(element->data.button, x, y);
@@ -74,13 +74,13 @@ static void FlexItem_setElementPosition(FlexItem* item, float x, float y) {
             Text_setPosition(element->data.text, x, y);
             break;
         case ELEMENT_TYPE_INPUT: {
-            InputBox* input = element->data.inputbox;
+            InputBox *input = element->data.inputbox;
             input->rect.x = x;
             input->rect.y = y;
             break;
         }
         case ELEMENT_TYPE_BOX: {
-            Box* box = element->data.box;
+            Box *box = element->data.box;
             if (box->position) {
                 box->position->x = x;
                 box->position->y = y;
@@ -88,7 +88,7 @@ static void FlexItem_setElementPosition(FlexItem* item, float x, float y) {
             break;
         }
         case ELEMENT_TYPE_CIRCLE: {
-            Circle* circle = element->data.circle;
+            Circle *circle = element->data.circle;
             if (circle->center) {
                 circle->center->x = x;
                 circle->center->y = y;
@@ -100,10 +100,10 @@ static void FlexItem_setElementPosition(FlexItem* item, float x, float y) {
     }
 }
 
-static void FlexItem_setElementSize(FlexItem* item, float width, float height) {
+static void FlexItem_setElementSize(FlexItem *item, float width, float height) {
     if (!item || !item->element) return;
 
-    Element* element = item->element;
+    Element *element = item->element;
     switch (element->type) {
         case ELEMENT_TYPE_BUTTON:
             Button_setSize(element->data.button, width, height);
@@ -112,20 +112,20 @@ static void FlexItem_setElementSize(FlexItem* item, float width, float height) {
             Text_setSize(element->data.text, width, height);
             break;
         case ELEMENT_TYPE_INPUT: {
-            InputBox* input = element->data.inputbox;
+            InputBox *input = element->data.inputbox;
             input->rect.w = width;
             input->rect.h = height;
             break;
         }
         case ELEMENT_TYPE_BOX: {
-            Box* box = element->data.box;
+            Box *box = element->data.box;
             box->size.width = width;
             box->size.height = height;
             break;
         }
         case ELEMENT_TYPE_CIRCLE: {
-            Circle* circle = element->data.circle;
-            circle->radius = (int)(width / 2);
+            Circle *circle = element->data.circle;
+            circle->radius = (int) (width / 2);
             break;
         }
         default:
@@ -133,7 +133,7 @@ static void FlexItem_setElementSize(FlexItem* item, float width, float height) {
     }
 }
 
-FlexContainer* FlexContainer_new(const float x, const float y, const float width, const float height) {
+FlexContainer *FlexContainer_new(const float x, const float y, const float width, const float height) {
     FlexContainer *container = calloc(1, sizeof(FlexContainer));
     if (!container) {
         error("FlexContainer_new: Failed to allocate memory for FlexContainer");
@@ -159,46 +159,47 @@ FlexContainer* FlexContainer_new(const float x, const float y, const float width
     return container;
 }
 
-void FlexContainer_destroy(FlexContainer* container) {
+void FlexContainer_destroy(FlexContainer *container) {
     if (!container) return;
 
     if (container->items) {
-        ListIterator* it = ListIterator_new(container->items);
+        ListIterator *it = ListIterator_new(container->items);
         while (ListIterator_hasNext(it)) {
-            FlexItem* item = ListIterator_next(it);
-            safe_free((void**)&item);
+            FlexItem *item = ListIterator_next(it);
+            safe_free((void **) &item);
         }
         ListIterator_destroy(it);
         List_destroy(container->items);
     }
 
-    safe_free((void**)&container);
+    safe_free((void **) &container);
 }
 
-void FlexContainer_setDirection(FlexContainer* container, const FlexDirection direction) {
+void FlexContainer_setDirection(FlexContainer *container, const FlexDirection direction) {
     if (!container) return;
     container->direction = direction;
 }
 
-void FlexContainer_setJustifyContent(FlexContainer* container, const FlexJustify justify) {
+void FlexContainer_setJustifyContent(FlexContainer *container, const FlexJustify justify) {
     if (!container) return;
     container->justify_content = justify;
 }
 
-void FlexContainer_setAlignItems(FlexContainer* container, const FlexAlign align) {
+void FlexContainer_setAlignItems(FlexContainer *container, const FlexAlign align) {
     if (!container) return;
     container->align_items = align;
 }
 
-void FlexContainer_setGap(FlexContainer* container, const float gap) {
+void FlexContainer_setGap(FlexContainer *container, const float gap) {
     if (!container) return;
     container->gap = gap;
 }
 
-void FlexContainer_addElement(FlexContainer* container, Element* element, float flex_grow, float flex_shrink, float flex_basis) {
+void FlexContainer_addElement(FlexContainer *container, Element *element, float flex_grow, float flex_shrink,
+                              float flex_basis) {
     if (!container || !element) return;
 
-    FlexItem* item = calloc(1, sizeof(FlexItem));
+    FlexItem *item = calloc(1, sizeof(FlexItem));
     if (!item) {
         error("FlexContainer_addElement: Failed to allocate memory for FlexItem");
         return;
@@ -222,24 +223,31 @@ void FlexContainer_addElement(FlexContainer* container, Element* element, float 
     List_push(container->items, item);
 }
 
-void FlexContainer_layout(FlexContainer* container) {
+void FlexContainer_layout(FlexContainer *container) {
     if (!container || !container->items) return;
 
     int item_count = List_size(container->items);
     if (item_count == 0) return;
 
     bool is_row = container->direction == FLEX_DIRECTION_ROW || container->direction == FLEX_DIRECTION_ROW_REVERSE;
-    bool is_reverse = container->direction == FLEX_DIRECTION_ROW_REVERSE || container->direction == FLEX_DIRECTION_COLUMN_REVERSE;
+    bool is_reverse = container->direction == FLEX_DIRECTION_ROW_REVERSE || container->direction ==
+                      FLEX_DIRECTION_COLUMN_REVERSE;
 
     float total_main_size = 0;
     float total_flex_grow = 0;
     float total_flex_shrink = 0;
     float total_gap = container->gap * (item_count - 1);
 
-    ListIterator* it = ListIterator_new(container->items);
+    ListIterator *it = ListIterator_new(container->items);
     while (ListIterator_hasNext(it)) {
-        FlexItem* item = ListIterator_next(it);
+        FlexItem *item = ListIterator_next(it);
         total_main_size += is_row ? item->width : item->height;
+        if (item->element->type == ELEMENT_TYPE_BUTTON) {
+            Button *btn = item->element->data.button;
+            total_main_size += is_row
+                                   ? btn->style->paddings->left + btn->style->paddings->right
+                                   : btn->style->paddings->top + btn->style->paddings->bottom;
+        }
         total_flex_grow += item->flex_grow;
         total_flex_shrink += item->flex_shrink;
     }
@@ -250,7 +258,9 @@ void FlexContainer_layout(FlexContainer* container) {
     if (available_space > 0 && total_flex_grow > 0) {
         it = ListIterator_new(container->items);
         while (ListIterator_hasNext(it)) {
-            FlexItem* item = ListIterator_next(it);
+            FlexItem *item = ListIterator_next(it);
+            log_message(LOG_LEVEL_DEBUG, "Before ; Type : %s ; width = %.2f ; height = %.2f",
+                    ElementType_toString(item->element->type), item->width, item->height);
             if (item->flex_grow > 0) {
                 float extra = (available_space * item->flex_grow) / total_flex_grow;
                 if (is_row) {
@@ -266,7 +276,7 @@ void FlexContainer_layout(FlexContainer* container) {
         float shrink_amount = -available_space;
         it = ListIterator_new(container->items);
         while (ListIterator_hasNext(it)) {
-            FlexItem* item = ListIterator_next(it);
+            FlexItem *item = ListIterator_next(it);
             if (item->flex_shrink > 0) {
                 float reduction = (shrink_amount * item->flex_shrink) / total_flex_shrink;
                 if (is_row) {
@@ -310,9 +320,8 @@ void FlexContainer_layout(FlexContainer* container) {
     float current_main = main_start;
 
     it = ListIterator_new(container->items);
-    int index = 0;
     while (ListIterator_hasNext(it)) {
-        FlexItem* item = ListIterator_next(it);
+        FlexItem *item = ListIterator_next(it);
 
         float cross_pos = 0;
         switch (container->align_items) {
@@ -335,6 +344,9 @@ void FlexContainer_layout(FlexContainer* container) {
                 break;
         }
 
+        log_message(LOG_LEVEL_DEBUG, "After ; Type : %s ; width = %.2f ; height = %.2f",
+                    ElementType_toString(item->element->type), item->width, item->height);
+
         FlexItem_setElementSize(item, item->width, item->height);
 
         float x, y;
@@ -345,13 +357,34 @@ void FlexContainer_layout(FlexContainer* container) {
             x = container->x + cross_pos;
             y = container->y + (is_reverse ? container->height - current_main - item->height : current_main);
         }
+        log_message(LOG_LEVEL_DEBUG, "Type : %s ; x = %.2f ; y = %.2f", ElementType_toString(item->element->type), x,
+                    y);
 
         FlexItem_setElementPosition(item, x, y);
 
-        current_main += (is_row ? item->width : item->height) + container->gap + item_spacing;
-        index++;
+        float main_size = is_row ? item->width : item->height;
+        if (item->element->type == ELEMENT_TYPE_BUTTON) {
+            Button *btn = item->element->data.button;
+            float main_size_add = 0;
+            switch (container->direction) {
+                case FLEX_DIRECTION_ROW:
+                    main_size_add += btn->style->paddings->right;
+                    break;
+                case FLEX_DIRECTION_ROW_REVERSE:
+                    main_size_add += btn->style->paddings->left;
+                    break;
+                case FLEX_DIRECTION_COLUMN:
+                    main_size_add += btn->style->paddings->bottom;
+                    break;
+                case FLEX_DIRECTION_COLUMN_REVERSE:
+                    main_size_add += btn->style->paddings->top;
+                    break;
+                default:
+                    break;
+            }
+            main_size += main_size_add;
+        }
+        current_main += main_size + container->gap + item_spacing;
     }
     ListIterator_destroy(it);
-
 }
-

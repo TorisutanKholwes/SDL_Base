@@ -253,3 +253,22 @@ Element* Element_getById(List* list, const char* id) {
     ListIterator_destroy(iterator);
     return NULL;
 }
+
+char* ElementType_toString(ElementType type) {
+    switch (type) {
+        case ELEMENT_TYPE_BUTTON:
+            return "BUTTON";
+        case ELEMENT_TYPE_TEXT:
+            return "TEXT";
+        case ELEMENT_TYPE_INPUT:
+            return "INPUT";
+        case ELEMENT_TYPE_BOX:
+            return "BOX";
+        case ELEMENT_TYPE_CIRCLE:
+            return "CIRCLE";
+        case ELEMENT_TYPE_POLYGON:
+            return "POLYGON";
+        default:
+            return "UNKNOWN";
+    }
+}

@@ -50,3 +50,5 @@ void Element_focusList(List* list);
 void Element_unfocusList(List* list);
 
 Element* Element_getById(List* list, const char* id);
+
+char* ElementType_toString(ElementType type);
