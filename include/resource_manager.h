@@ -8,7 +8,7 @@
 
 #define ASSETS_PATH "../assets/"
 
-#define TEXTURE_PATH ASSETS_PATH "textures/"
+#define TEXTURE_PATH ASSETS_PATH "images/"
 #define FONT_PATH    ASSETS_PATH "fonts/"
 #define SOUND_PATH   ASSETS_PATH "sounds/"
 

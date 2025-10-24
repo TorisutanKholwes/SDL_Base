@@ -57,6 +57,8 @@ typedef enum FlexDirection FlexDirection;
 typedef enum FlexJustify FlexJustify;
 typedef enum FlexAlign FlexAlign;
 
+typedef struct Image Image;
+
 // Frames
 typedef struct MainFrame MainFrame;
 typedef struct SecondFrame SecondFrame;

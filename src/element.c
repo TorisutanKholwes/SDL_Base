@@ -7,6 +7,7 @@
 #include "logger.h"
 #include "button.h"
 #include "geometry.h"
+#include "image.h"
 #include "input_box.h"
 #include "list.h"
 #include "text.h"
@@ -44,7 +45,7 @@ Element* Element_fromInput(InputBox* input, const char* id) {
     }
     element->type = ELEMENT_TYPE_INPUT;
     element->id = Strdup(id);
-    element->data.inputbox = input;
+    element->data.input_box = input;
     return element;
 }
 
@@ -84,6 +85,18 @@ Element* Element_fromPolygon(Polygon* polygon, const char* id) {
     return element;
 }
 
+Element* Element_fromImage(Image* image, const char* id) {
+    Element* element = calloc(1, sizeof(Element));
+    if (!element) {
+        error("Element_fromText: Failed to allocate memory for Element");
+        return NULL;
+    }
+    element->type = ELEMENT_TYPE_IMAGE;
+    element->id = Strdup(id);
+    element->data.image = image;
+    return element;
+}
+
 void Element_destroy(Element* element) {
     if (!element) return;
 
@@ -104,7 +117,10 @@ void Element_destroy(Element* element) {
             Polygon_destroy(element->data.polygon);
             break;
         case ELEMENT_TYPE_INPUT:
-            InputBox_destroy(element->data.inputbox);
+            InputBox_destroy(element->data.input_box);
+            break;
+        case ELEMENT_TYPE_IMAGE:
+            Image_destroy(element->data.image);
             break;
         default:
             log_message(LOG_LEVEL_WARN, "Element_destroy: Unknown element type %d", element->type);
@@ -140,7 +156,10 @@ void Element_render(Element* element, SDL_Renderer* renderer) {
             Polygon_render(element->data.polygon, renderer);
             break;
         case ELEMENT_TYPE_INPUT:
-            InputBox_render(element->data.inputbox, renderer);
+            InputBox_render(element->data.input_box, renderer);
+            break;
+        case ELEMENT_TYPE_IMAGE:
+            Image_render(element->data.image, renderer);
             break;
         default:
             log_message(LOG_LEVEL_WARN, "Element_render: Unknown element type %d", element->type);
@@ -155,12 +174,13 @@ void Element_update(Element* element) {
             Button_update(element->data.button);
             break;
         case ELEMENT_TYPE_INPUT:
-            InputBox_update(element->data.inputbox);
+            InputBox_update(element->data.input_box);
             break;
         case ELEMENT_TYPE_TEXT:
         case ELEMENT_TYPE_BOX:
         case ELEMENT_TYPE_CIRCLE:
         case ELEMENT_TYPE_POLYGON:
+        case ELEMENT_TYPE_IMAGE:
             // No update needed for text currently
             break;
         default:
@@ -176,12 +196,13 @@ void Element_focus(Element* element) {
             Button_focus(element->data.button);
             break;
         case ELEMENT_TYPE_INPUT:
-            InputBox_focus(element->data.inputbox);
+            InputBox_focus(element->data.input_box);
             break;
         case ELEMENT_TYPE_TEXT:
         case ELEMENT_TYPE_BOX:
         case ELEMENT_TYPE_CIRCLE:
         case ELEMENT_TYPE_POLYGON:
+        case ELEMENT_TYPE_IMAGE:
             break;
         default:
             log_message(LOG_LEVEL_WARN, "Element_focus: Unknown element type %d", element->type);
@@ -196,12 +217,13 @@ void Element_unfocus(Element* element) {
             Button_unFocus(element->data.button);
             break;
         case ELEMENT_TYPE_INPUT:
-            InputBox_unFocus(element->data.inputbox);
+            InputBox_unFocus(element->data.input_box);
             break;
         case ELEMENT_TYPE_TEXT:
         case ELEMENT_TYPE_BOX:
         case ELEMENT_TYPE_CIRCLE:
         case ELEMENT_TYPE_POLYGON:
+        case ELEMENT_TYPE_IMAGE:
             break;
         default:
             log_message(LOG_LEVEL_WARN, "Element_unfocus: Unknown element type %d", element->type);
@@ -273,6 +295,8 @@ char* ElementType_toString(ElementType type) {
             return "CIRCLE";
         case ELEMENT_TYPE_POLYGON:
             return "POLYGON";
+        case ELEMENT_TYPE_IMAGE:
+            return "IMAGE";
         default:
             return "UNKNOWN";
     }

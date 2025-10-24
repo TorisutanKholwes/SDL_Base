@@ -158,7 +158,7 @@ static void SecondFrame_onButtonClick(Input* input, SDL_Event* evt, void* data) 
     Button* button = data;
     if (button && button->parent) {
         SecondFrame* self = button->parent;
-        InputBox* input_box = Element_getById(self->elements, "input")->data.inputbox;
+        InputBox* input_box = Element_getById(self->elements, "input")->data.input_box;
         if (input_box) {
             char* str = InputBox_getString(input_box);
             if (!String_isNumeric(str)) {

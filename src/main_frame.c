@@ -10,6 +10,7 @@
 #include "element.h"
 #include "frame.h"
 #include "geometry.h"
+#include "image.h"
 #include "input.h"
 #include "layout_test_frame.h"
 #include "logger.h"
@@ -54,6 +55,10 @@ static void MainFrame_addElements(MainFrame* self, App* app) {
     List_clear(self->elements);
     int w, h;
     SDL_GetWindowSize(app->window, &w, &h);
+
+    Image* image = Image_load(self->app, "esiea.png", Position_new(0, 0), false);
+    Image_setRatio(image, 0.4f);
+    List_push(self->elements, Element_fromImage(image, NULL));
 
     Text* title = Text_newf(app->renderer,
         TextStyle_new(ResourceManager_getDefaultBoldFont(app->manager, 40),

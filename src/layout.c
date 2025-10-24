@@ -38,7 +38,7 @@ static void FlexItem_getElementSize(FlexItem *item, float *width, float *height)
             break;
         }
         case ELEMENT_TYPE_INPUT: {
-            InputBox *input = element->data.inputbox;
+            InputBox *input = element->data.input_box;
             *width = input->rect.w;
             *height = input->rect.h;
             break;
@@ -74,7 +74,7 @@ static void FlexItem_setElementPosition(FlexItem *item, float x, float y) {
             Text_setPosition(element->data.text, x, y);
             break;
         case ELEMENT_TYPE_INPUT: {
-            InputBox *input = element->data.inputbox;
+            InputBox *input = element->data.input_box;
             input->rect.x = x;
             input->rect.y = y;
             break;
@@ -112,7 +112,7 @@ static void FlexItem_setElementSize(FlexItem *item, float width, float height) {
             Text_setSize(element->data.text, width, height);
             break;
         case ELEMENT_TYPE_INPUT: {
-            InputBox *input = element->data.inputbox;
+            InputBox *input = element->data.input_box;
             input->rect.w = width;
             input->rect.h = height;
             break;
