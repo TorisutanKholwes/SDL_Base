@@ -36,8 +36,8 @@ Before building this project, ensure you have the following installed:
 ### Clone the Repository
 
 ```bash
-git clone https://github.com/TorisutanKholwes/SDL_BasePrivate.git
-cd SDL_BasePrivate
+git clone https://github.com/TorisutanKholwes/SDL_Base.git
+cd SDL_Base
 ```
 
 ## 🔨 Building the Project
