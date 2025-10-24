@@ -93,6 +93,7 @@ SDL_Texture* ResourceManager_getTexture(ResourceManager* self, const char* filen
         return NULL;
     }
     Map_put(self->texturesCache, Strdup(filename), texture);
+    log_message(LOG_LEVEL_INFO, "Loaded new texture from %s", path);
     safe_free((void**)&path);
     return texture;
 }
@@ -123,6 +124,7 @@ TTF_Font* ResourceManager_getFont(ResourceManager* self, const char* filename, i
         Map* sizeMap = Map_create(false);
         Map_put(sizeMap, (void*)(long)size, font);
         Map_put(self->fontsCache, Strdup(filename), sizeMap);
+        log_message(LOG_LEVEL_INFO, "Loaded new font from %s", path);
     }
     safe_free((void**)&path);
     return font;
@@ -144,6 +146,7 @@ MIX_Audio* ResourceManager_getSound(ResourceManager* self, const char* filename)
         return NULL;
     }
     Map_put(self->soundsCache, Strdup(filename), sound);
+    log_message(LOG_LEVEL_INFO, "Loaded new sound from %s", path);
     safe_free((void**)&path);
     return sound;
 }
