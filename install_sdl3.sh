@@ -7,6 +7,8 @@ echo "Installing SDL3 and dependencies into $INSTALL_DIR..."
 
 mkdir -p "$INSTALL_DIR"
 
+INSTALL_FULL_DIR=$(realpath "$INSTALL_DIR")
+
 REPOS=(
     "https://github.com/libsdl-org/SDL.git"
     "https://github.com/libsdl-org/SDL_image.git"
@@ -27,7 +29,7 @@ for REPO in "${REPOS[@]}"; do
     mkdir -p "$BUILD_DIR"
     pushd "$BUILD_DIR" > /dev/null
 
-    cmake -DCMAKE_INSTALL_PREFIX="$INSTALL_DIR" -DCMAKE_BUILD_TYPE=Release -DSDL3_DIR="$INSTALL_DIR/cmake" ..
+    cmake -DCMAKE_INSTALL_PREFIX="$INSTALL_FULL_DIR" -DCMAKE_BUILD_TYPE=Release -DSDL3_DIR="$INSTALL_FULL_DIR/cmake" ..
     cmake --build . --config Release --target install
 
     popd > /dev/null
