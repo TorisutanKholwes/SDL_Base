@@ -31,8 +31,13 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+
+#ifdef WIN32
+#define _USE_MATH_DEFINES
+#else
 #include <unistd.h>
 #include <pthread.h>
+#endif
 
 // Include SDL libraries
 #include <SDL3/SDL.h>

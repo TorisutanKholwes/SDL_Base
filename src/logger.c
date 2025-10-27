@@ -5,7 +5,9 @@
 #include "logger.h"
 #include "ansi.h"
 
+#ifndef WIN32
 static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
+#endif
 
 char* get_level_color(const LogLevel level) {
     char* buffer = malloc(16);
@@ -50,6 +52,7 @@ const char* get_level_string(const LogLevel level) {
 }
 
 void log_message(const LogLevel level, const char* format, ...) {
+#ifndef WIN32
     pthread_mutex_lock(&mutex);
     if (level == LOG_LEVEL_DEBUG) {
 #if !defined(PRODUCTION) || (defined(PRODUCTION) && PRODUCTION == 1)
@@ -57,6 +60,11 @@ void log_message(const LogLevel level, const char* format, ...) {
         return;
 #endif
     }
+#else
+    if (level == LOG_LEVEL_DEBUG) {
+        return;
+    }
+#endif
     time_t now = time(NULL);
     struct tm* t = localtime(&now);
     char datetime[32];
@@ -73,7 +81,9 @@ void log_message(const LogLevel level, const char* format, ...) {
 
     printf("%s%s %s %s%s\n", levelColor, datetime, levelStr, msg, ANSI_COLOR_RESET);
     free(levelColor);
+#ifndef WIN32
     pthread_mutex_unlock(&mutex);
+#endif
 }
 
 void log_error(const char* file, const int line, const char* func, const char* error, ...) {
