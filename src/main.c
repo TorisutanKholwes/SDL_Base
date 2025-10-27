@@ -30,7 +30,7 @@ int main() {
     flags |= SDL_WINDOW_FULLSCREEN;
 #endif
 
-    SDL_Window *window = SDL_CreateWindow(WINDOW_TITLE,
+    SDL_Window* window = SDL_CreateWindow(WINDOW_TITLE,
         WINDOW_WIDTH, WINDOW_HEIGHT, flags);
 
     if (!window) {
@@ -72,15 +72,16 @@ int main() {
 
     App_addFrame(app, MainFrame_getFrame(MainFrame_new(app)));
 
-    Uint32 frame_delay = 1000 / FRAME_RATE;
+    Uint64 frame_delay = 1000 / FRAME_RATE;
 
     while (app->running) {
-        Uint32 frame_start = SDL_GetTicks();
+        Uint64 frame_start = SDL_GetTicks();
 
         Input_update(app->input);
 
         if (app->input->quit) {
             app->running = false;
+            break;
         }
 
         SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
@@ -109,7 +110,7 @@ int main() {
 
         SDL_RenderPresent(app->renderer);
 
-        Uint32 frame_time = SDL_GetTicks() - frame_start;
+        Uint64 frame_time = SDL_GetTicks() - frame_start;
         if (frame_delay > frame_time) {
             SDL_Delay(frame_delay - frame_time);
         }
@@ -134,20 +135,6 @@ int main() {
 
 #if 0
 int main() {
-    int a = 5;
-    int b = 10;
-    List* list = List_create();
-    List_push_int(list, a);
-    List_push_int(list, b);
-
-    void* val1 = List_getFirst(list);
-    if ((int)(long)val1 == 10 || String_equals(val1, "Test")) {
-        printf("Val1 is correct: %d\n", (int)(long)val1);
-    } else {
-        printf("Val1 is incorrect: %d\n", (int)(long)val1);
-    }
-
-
 }
 #endif
 
