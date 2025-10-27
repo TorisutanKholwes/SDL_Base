@@ -4,6 +4,12 @@ set(CMAKE_C_STANDARD 23)
 
 set(LIB_INSTALL_DIR "${CMAKE_SOURCE_DIR}/libs")
 
+if (WIN32)
+    set(CMAKE_PREFIX_PATH "${CMAKE_SOURCE_DIR}/libs/cmake")
+else ()
+    set(CMAKE_PREFIX_PATH "${CMAKE_SOURCE_DIR}/libs/lib/cmake/SDL3" "${CMAKE_SOURCE_DIR}/libs/lib/cmake/SDL3_image" "${CMAKE_SOURCE_DIR}/libs/lib/cmake/SDL3_mixer" "${CMAKE_SOURCE_DIR}/libs/lib/cmake/SDL3_ttf")
+endif ()
+
 find_package(SDL3 QUIET)
 find_package(SDL3_image QUIET)
 find_package(SDL3_mixer QUIET)
@@ -74,4 +80,6 @@ target_include_directories(SDLBase PRIVATE ${SDL3_INCLUDE_DIRS} ${SDL3_IMAGE_INC
 
 target_link_libraries(SDLBase PRIVATE SDL3::SDL3 SDL3_image::SDL3_image SDL3_mixer::SDL3_mixer SDL3_ttf::SDL3_ttf)
 
-target_compile_options(SDLBase PRIVATE -Wall -Wextra)
+if (NOT WIN32)
+    target_compile_options(SDLBase PRIVATE -Wall -Wextra)
+endif ()

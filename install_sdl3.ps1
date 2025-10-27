@@ -8,6 +8,8 @@ if (-not (Test-Path $InstallDir)) {
     New-Item -ItemType Directory -Path $InstallDir | Out-Null
 }
 
+$InstallFullDir = (Resolve-Path $InstallDir).Path
+
 $repos = @(
     "https://github.com/libsdl-org/SDL.git",
     "https://github.com/libsdl-org/SDL_image.git",
@@ -26,10 +28,6 @@ foreach ($repo in $repos) {
         if ($LASTEXITCODE -ne 0) {
             throw "Git clone failed for $name"
         }
-    } else {
-        Push-Location $srcDir
-        git submodule update --init --recursive
-        Pop-Location
     }
 
     if (-not (Test-Path $buildDir)) {
@@ -37,7 +35,7 @@ foreach ($repo in $repos) {
     }
 
     Push-Location $buildDir
-    cmake -DCMAKE_INSTALL_PREFIX="$InstallDir" -DCMAKE_BUILD_TYPE=Release -DSDL3_DIR="$InstallDir\\cmake" ..
+    cmake -DCMAKE_INSTALL_PREFIX="$InstallFullDir" -DCMAKE_BUILD_TYPE=Release -DSDL3_DIR="$InstallFullDir\\cmake" ..
     if ($LASTEXITCODE -ne 0) {
         Pop-Location
         throw "CMake configuration failed for $name"
@@ -51,7 +49,6 @@ foreach ($repo in $repos) {
     Pop-Location
 
     Remove-Item -Path "$srcDir" -Recurse -Force
-
 }
 
 Write-Host "`nSDL3 installation complete in $InstallDir"

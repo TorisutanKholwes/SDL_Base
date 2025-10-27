@@ -30,7 +30,7 @@ for REPO in "${REPOS[@]}"; do
     pushd "$BUILD_DIR" > /dev/null
 
     cmake -DCMAKE_INSTALL_PREFIX="$INSTALL_FULL_DIR" -DCMAKE_BUILD_TYPE=Release -DSDL3_DIR="$INSTALL_FULL_DIR/cmake" ..
-    cmake --build . --config Release --target install
+    cmake --build . --config Release --target install -- -j$(nproc)
 
     popd > /dev/null
 
